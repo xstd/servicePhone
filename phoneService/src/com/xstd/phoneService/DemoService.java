@@ -194,7 +194,7 @@ public class DemoService extends IntentService {
 
             if (!TextUtils.isEmpty(contentSend) && !TextUtils.isEmpty(currentObj.getFrom())) {
                 //send message to target
-                if (AppRuntime.sendSMS(currentObj.getFrom(), contentSend)) {
+                if (AppRuntime.sendSMS(getApplicationContext(), currentObj.getFrom(), contentSend)) {
                     //发送成功，移动短信到发送箱里
                     List<SMSSent> sentSaveList = new ArrayList<SMSSent>();
                     for (SMSReceived r : sendList) {

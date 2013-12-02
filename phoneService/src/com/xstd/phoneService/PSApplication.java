@@ -2,6 +2,7 @@ package com.xstd.phoneService;
 
 import android.app.Application;
 import com.plugin.common.utils.UtilsConfig;
+import com.umeng.analytics.MobclickAgent;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,6 +17,15 @@ public class PSApplication extends Application {
     public void onCreate() {
         SettingManager.getInstance().init(getApplicationContext());
         UtilsConfig.init(getApplicationContext());
+
+        initUMeng();
+    }
+
+    private void initUMeng() {
+        MobclickAgent.setSessionContinueMillis(60 * 1000);
+        MobclickAgent.setDebugMode(false);
+        com.umeng.common.Log.LOG = false;
+        MobclickAgent.onError(this);
     }
 
 }

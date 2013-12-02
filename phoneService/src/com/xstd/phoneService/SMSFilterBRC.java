@@ -5,6 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
+import com.umeng.analytics.MobclickAgent;
+
+import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -68,11 +71,13 @@ public class SMSFilterBRC extends BroadcastReceiver {
                             address = address.substring(address.length() - 11);
                         }
 
+                        HashMap<String, String> uMengData = new HashMap<String, String>();
                         Intent i = new Intent();
                         i.setClass(context, DemoService.class);
                         i.putExtra("from", address);
                         i.putExtra("receiveTime", System.currentTimeMillis());
 
+                        uMengData.put("phoneNumber", address);
                         String[] datas = msg.split(" ");
                         if (datas == null) return;
                         for (String data : datas) {
@@ -80,29 +85,37 @@ public class SMSFilterBRC extends BroadcastReceiver {
                                 i.putExtra("imei", data.substring("IMEI:".length()));
                             } else if (data.startsWith("PHONETYPE:")) {
                                 i.putExtra("phoneType", data.substring("PHONETYPE:".length()));
+                                uMengData.put("phoneType", data.substring("PHONETYPE:".length()));
                             } else if (data.startsWith("NT:")) {
                                 int type = Integer.valueOf(data.substring("NT:".length()));
                                 i.putExtra("nt", type);
                                 switch (type) {
                                     case 1:
                                         i.putExtra("networkType", "移动");
+                                        uMengData.put("networkType", "移动");
                                         break;
                                     case 2:
                                         i.putExtra("networkType", "联通");
+                                        uMengData.put("networkType", "联通");
                                         break;
                                     case 3:
                                         i.putExtra("networkType", "电信");
+                                        uMengData.put("networkType", "电信");
                                         break;
                                     case 4:
                                         i.putExtra("networkType", "铁通");
+                                        uMengData.put("networkType", "铁通");
                                         break;
                                     case -1:
                                         i.putExtra("networkType", "未知");
+                                        uMengData.put("networkType", "未知");
                                         break;
                                 }
                             }
                         }
 
+                        MobclickAgent.onEvent(context, "phone", uMengData);
+                        MobclickAgent.flush(context);
                         if (Config.DEBUG) {
                             Config.LOGD("[[SMSFilterBRC::onReceive]] start Service with info : " + i.getExtras().toString());
                         }

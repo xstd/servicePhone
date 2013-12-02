@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.*;
 import com.plugin.common.utils.UtilsRuntime;
+import com.umeng.analytics.MobclickAgent;
 import com.xstd.phoneService.Utils.StatusDaoUtils;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
@@ -100,6 +101,18 @@ public class StartActivity extends Activity {
 
         registerReceiver(mStatusBRC, new IntentFilter(DemoService.UPDATE_STATUS));
         updateStatus();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        MobclickAgent.onResume(getApplicationContext());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        MobclickAgent.onPause(getApplicationContext());
     }
 
     @Override

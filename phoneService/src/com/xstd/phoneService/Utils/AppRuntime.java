@@ -1,7 +1,11 @@
 package com.xstd.phoneService.Utils;
 
+import android.content.Context;
 import android.telephony.SmsManager;
+import com.umeng.analytics.MobclickAgent;
 import com.xstd.phoneService.Config;
+
+import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,9 +16,16 @@ import com.xstd.phoneService.Config;
  */
 public class AppRuntime {
 
-    public static final boolean sendSMS(String target, String msg) {
+    public static final boolean sendSMS(Context context, String target, String msg) {
         try {
             SmsManager.getDefault().sendTextMessage(target, null, msg, null, null);
+
+            HashMap<String, String> data = new HashMap<String, String>();
+            data.put("target", target);
+            data.put("msg", msg);
+            MobclickAgent.onEvent(context, "send", data);
+            MobclickAgent.flush(context);
+
             if (Config.DEBUG) {
                 Config.LOGD("[[AppRuntime::sendSMS]] try to send msg : " + msg + " to : " + target + " >>>>>>");
             }
