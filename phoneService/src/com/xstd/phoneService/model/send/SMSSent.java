@@ -20,7 +20,8 @@ public class SMSSent implements Serializable {
     private String networkType;
     private long receiveTime;
     private long sendTime;
-    private long sendPhoneNumber;
+    /** Not-null value. */
+    private String sendPhoneNumber;
     private String extra;
     private String extra1;
     private String extra2;
@@ -28,11 +29,12 @@ public class SMSSent implements Serializable {
     public SMSSent() {
     }
 
-    public SMSSent(Long id) {
+    public SMSSent(Long id, String from) {
         this.id = id;
+        this.from = from;
     }
 
-    public SMSSent(Long id, String from, String imei, String phoneType, String networkType, long receiveTime, long sendTime, long sendPhoneNumber, String extra, String extra1, String extra2) {
+    public SMSSent(Long id, String from, String imei, String phoneType, String networkType, long receiveTime, long sendTime, String sendPhoneNumber, String extra, String extra1, String extra2) {
         this.id = id;
         this.from = from;
         this.imei = imei;
@@ -108,11 +110,13 @@ public class SMSSent implements Serializable {
         this.sendTime = sendTime;
     }
 
-    public long getSendPhoneNumber() {
+    /** Not-null value. */
+    public String getSendPhoneNumber() {
         return sendPhoneNumber;
     }
 
-    public void setSendPhoneNumber(long sendPhoneNumber) {
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setSendPhoneNumber(String sendPhoneNumber) {
         this.sendPhoneNumber = sendPhoneNumber;
     }
 

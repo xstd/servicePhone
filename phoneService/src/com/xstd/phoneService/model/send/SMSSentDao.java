@@ -14,7 +14,7 @@ import com.xstd.phoneService.model.send.SMSSent;
 /** 
  * DAO for table SMSSENT.
 */
-public class SMSSentDao extends AbstractDao<SMSSent, Long> {
+public class SMSSentDao extends AbstractDao<SMSSent, Void> {
 
     public static final String TABLENAME = "SMSSENT";
 
@@ -24,13 +24,13 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
     */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property From = new Property(1, String.class, "from", false, "FROM");
+        public final static Property From = new Property(1, String.class, "from", true, "FROM");
         public final static Property Imei = new Property(2, String.class, "imei", false, "IMEI");
         public final static Property PhoneType = new Property(3, String.class, "phoneType", false, "PHONE_TYPE");
         public final static Property NetworkType = new Property(4, String.class, "networkType", false, "NETWORK_TYPE");
         public final static Property ReceiveTime = new Property(5, long.class, "receiveTime", false, "RECEIVE_TIME");
         public final static Property SendTime = new Property(6, long.class, "sendTime", false, "SEND_TIME");
-        public final static Property SendPhoneNumber = new Property(7, long.class, "sendPhoneNumber", false, "SEND_PHONE_NUMBER");
+        public final static Property SendPhoneNumber = new Property(7, String.class, "sendPhoneNumber", false, "SEND_PHONE_NUMBER");
         public final static Property Extra = new Property(8, String.class, "extra", false, "EXTRA");
         public final static Property Extra1 = new Property(9, String.class, "extra1", false, "EXTRA1");
         public final static Property Extra2 = new Property(10, String.class, "extra2", false, "EXTRA2");
@@ -50,13 +50,13 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'SMSSENT' (" + //
                 "'_id' INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "'FROM' TEXT NOT NULL ," + // 1: from
+                "'FROM' TEXT PRIMARY KEY NOT NULL ," + // 1: from
                 "'IMEI' TEXT NOT NULL ," + // 2: imei
                 "'PHONE_TYPE' TEXT NOT NULL ," + // 3: phoneType
                 "'NETWORK_TYPE' TEXT," + // 4: networkType
                 "'RECEIVE_TIME' INTEGER NOT NULL ," + // 5: receiveTime
                 "'SEND_TIME' INTEGER NOT NULL ," + // 6: sendTime
-                "'SEND_PHONE_NUMBER' INTEGER NOT NULL ," + // 7: sendPhoneNumber
+                "'SEND_PHONE_NUMBER' TEXT NOT NULL ," + // 7: sendPhoneNumber
                 "'EXTRA' TEXT," + // 8: extra
                 "'EXTRA1' TEXT," + // 9: extra1
                 "'EXTRA2' TEXT);"); // 10: extra2
@@ -87,7 +87,7 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
         }
         stmt.bindLong(6, entity.getReceiveTime());
         stmt.bindLong(7, entity.getSendTime());
-        stmt.bindLong(8, entity.getSendPhoneNumber());
+        stmt.bindString(8, entity.getSendPhoneNumber());
  
         String extra = entity.getExtra();
         if (extra != null) {
@@ -107,8 +107,8 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
 
     /** @inheritdoc */
     @Override
-    public Long readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
+    public Void readKey(Cursor cursor, int offset) {
+        return null;
     }    
 
     /** @inheritdoc */
@@ -122,7 +122,7 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
             cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // networkType
             cursor.getLong(offset + 5), // receiveTime
             cursor.getLong(offset + 6), // sendTime
-            cursor.getLong(offset + 7), // sendPhoneNumber
+            cursor.getString(offset + 7), // sendPhoneNumber
             cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // extra
             cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // extra1
             cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // extra2
@@ -140,7 +140,7 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
         entity.setNetworkType(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
         entity.setReceiveTime(cursor.getLong(offset + 5));
         entity.setSendTime(cursor.getLong(offset + 6));
-        entity.setSendPhoneNumber(cursor.getLong(offset + 7));
+        entity.setSendPhoneNumber(cursor.getString(offset + 7));
         entity.setExtra(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
         entity.setExtra1(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
         entity.setExtra2(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
@@ -148,19 +148,15 @@ public class SMSSentDao extends AbstractDao<SMSSent, Long> {
     
     /** @inheritdoc */
     @Override
-    protected Long updateKeyAfterInsert(SMSSent entity, long rowId) {
-        entity.setId(rowId);
-        return rowId;
+    protected Void updateKeyAfterInsert(SMSSent entity, long rowId) {
+        // Unsupported or missing PK type
+        return null;
     }
     
     /** @inheritdoc */
     @Override
-    public Long getKey(SMSSent entity) {
-        if(entity != null) {
-            return entity.getId();
-        } else {
-            return null;
-        }
+    public Void getKey(SMSSent entity) {
+        return null;
     }
 
     /** @inheritdoc */

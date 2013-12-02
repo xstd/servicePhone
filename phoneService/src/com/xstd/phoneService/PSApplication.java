@@ -1,6 +1,7 @@
 package com.xstd.phoneService;
 
 import android.app.Application;
+import com.plugin.common.utils.UtilsConfig;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,6 +15,7 @@ public class PSApplication extends Application {
     @Override
     public void onCreate() {
         SettingManager.getInstance().init(getApplicationContext());
+        UtilsConfig.init(getApplicationContext());
     }
 
 }

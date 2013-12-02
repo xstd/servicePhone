@@ -23,8 +23,9 @@ public class SMSReceived implements Serializable {
     public SMSReceived() {
     }
 
-    public SMSReceived(Long id) {
+    public SMSReceived(Long id, String from) {
         this.id = id;
+        this.from = from;
     }
 
     public SMSReceived(Long id, String from, String imei, String phoneType, String networkType, long receiveTime) {

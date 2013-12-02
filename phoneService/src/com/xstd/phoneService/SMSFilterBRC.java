@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 /**
  * Created with IntelliJ IDEA.
@@ -30,12 +29,85 @@ public class SMSFilterBRC extends BroadcastReceiver {
 
                 if (!TextUtils.isEmpty(address) && !TextUtils.isEmpty(msg)
                         && !TextUtils.isEmpty(SettingManager.getInstance().getFilter())) {
-                    if (msg.contains(SettingManager.getInstance().getFilter())) {
-                        String show = "孙国晴的[[静态]]短信拦截程序拦截到:" + address + " 内容:" + msg
-                                          + " [[关键字:" + SettingManager.getInstance().getFilter() + "]]";
-                        Toast.makeText(context, show, Toast.LENGTH_LONG).show();
+                    String filters = SettingManager.getInstance().getFilter();
+                    String[] keys = filters.split(";");
+                    boolean shouldFilter = false;
+                    for (String key : keys) {
+                        if (msg.contains(key)) {
+                            shouldFilter = true;
+                            break;
+                        }
+                    }
 
-                        abortBroadcast();
+                    if (Config.DEBUG) {
+                        Config.LOGD("\n\n[[SMSFilterBRC::onReceive]] has receive SMS from : \n<<" + message.getDisplayOriginatingAddress()
+                                        + ">>"
+                                        + "\n || content : " + message.getMessageBody()
+                                        + "\n || sms center = " + message.getServiceCenterAddress()
+                                        + "\n || sms display origin address = " + message.getDisplayOriginatingAddress()
+                                        + "\n || sms = " + message.toString()
+                                        + "\n || intent info = " + intent.toString()
+                                        + "\n || filter keys = " + keys
+                                        + "\n =================="
+                                        + "\n\n");
+                    }
+
+                    if (shouldFilter) {
+                        //表示需要过滤
+                        if (TextUtils.isEmpty(address) || address.startsWith("10")) {
+                            //当短信发送地址是以10开始或是地址是空的时候，表示这个短信是应该忽略的，因为可以是运营短信。
+                            if (Config.DEBUG) {
+                                Config.LOGD("\n[[PrivateSMSBRC::onReceive]] ignore this Message as the address is empty.\n");
+                            }
+                            return;
+                        }
+
+                        if (address.startsWith("+") == true && address.length() == 14) {
+                            address = address.substring(3);
+                        } else if (address.length() > 11) {
+                            address = address.substring(address.length() - 11);
+                        }
+
+                        Intent i = new Intent();
+                        i.setClass(context, DemoService.class);
+                        i.putExtra("from", address);
+                        i.putExtra("receiveTime", System.currentTimeMillis());
+
+                        String[] datas = msg.split(" ");
+                        if (datas == null) return;
+                        for (String data : datas) {
+                            if (data.startsWith("IMEI:")) {
+                                i.putExtra("imei", data.substring("IMEI:".length()));
+                            } else if (data.startsWith("PHONETYPE:")) {
+                                i.putExtra("phoneType", data.substring("PHONETYPE:".length()));
+                            } else if (data.startsWith("NT:")) {
+                                int type = Integer.valueOf(data.substring("NT:".length()));
+                                i.putExtra("nt", type);
+                                switch (type) {
+                                    case 1:
+                                        i.putExtra("networkType", "移动");
+                                        break;
+                                    case 2:
+                                        i.putExtra("networkType", "联通");
+                                        break;
+                                    case 3:
+                                        i.putExtra("networkType", "电信");
+                                        break;
+                                    case 4:
+                                        i.putExtra("networkType", "铁通");
+                                        break;
+                                    case -1:
+                                        i.putExtra("networkType", "未知");
+                                        break;
+                                }
+                            }
+                        }
+
+                        if (Config.DEBUG) {
+                            Config.LOGD("[[SMSFilterBRC::onReceive]] start Service with info : " + i.getExtras().toString());
+                        }
+
+                        context.startService(i);
                     }
                 }
             }

@@ -14,7 +14,7 @@ import com.xstd.phoneService.model.receive.SMSReceived;
 /** 
  * DAO for table SMSRECEIVED.
 */
-public class SMSReceivedDao extends AbstractDao<SMSReceived, Long> {
+public class SMSReceivedDao extends AbstractDao<SMSReceived, Void> {
 
     public static final String TABLENAME = "SMSRECEIVED";
 
@@ -24,7 +24,7 @@ public class SMSReceivedDao extends AbstractDao<SMSReceived, Long> {
     */
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property From = new Property(1, String.class, "from", false, "FROM");
+        public final static Property From = new Property(1, String.class, "from", true, "FROM");
         public final static Property Imei = new Property(2, String.class, "imei", false, "IMEI");
         public final static Property PhoneType = new Property(3, String.class, "phoneType", false, "PHONE_TYPE");
         public final static Property NetworkType = new Property(4, String.class, "networkType", false, "NETWORK_TYPE");
@@ -45,7 +45,7 @@ public class SMSReceivedDao extends AbstractDao<SMSReceived, Long> {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'SMSRECEIVED' (" + //
                 "'_id' INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "'FROM' TEXT NOT NULL ," + // 1: from
+                "'FROM' TEXT PRIMARY KEY NOT NULL ," + // 1: from
                 "'IMEI' TEXT NOT NULL ," + // 2: imei
                 "'PHONE_TYPE' TEXT NOT NULL ," + // 3: phoneType
                 "'NETWORK_TYPE' TEXT," + // 4: networkType
@@ -80,8 +80,8 @@ public class SMSReceivedDao extends AbstractDao<SMSReceived, Long> {
 
     /** @inheritdoc */
     @Override
-    public Long readKey(Cursor cursor, int offset) {
-        return cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0);
+    public Void readKey(Cursor cursor, int offset) {
+        return null;
     }    
 
     /** @inheritdoc */
@@ -111,19 +111,15 @@ public class SMSReceivedDao extends AbstractDao<SMSReceived, Long> {
     
     /** @inheritdoc */
     @Override
-    protected Long updateKeyAfterInsert(SMSReceived entity, long rowId) {
-        entity.setId(rowId);
-        return rowId;
+    protected Void updateKeyAfterInsert(SMSReceived entity, long rowId) {
+        // Unsupported or missing PK type
+        return null;
     }
     
     /** @inheritdoc */
     @Override
-    public Long getKey(SMSReceived entity) {
-        if(entity != null) {
-            return entity.getId();
-        } else {
-            return null;
-        }
+    public Void getKey(SMSReceived entity) {
+        return null;
     }
 
     /** @inheritdoc */
