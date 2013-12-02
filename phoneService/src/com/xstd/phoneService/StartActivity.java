@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
 import com.plugin.common.utils.UtilsRuntime;
@@ -107,6 +109,31 @@ public class StartActivity extends Activity {
     public void onStart() {
         super.onStart();
         MobclickAgent.onResume(getApplicationContext());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.leave_list:
+                Intent i = new Intent();
+                i.setClass(getApplicationContext(), LeftListActivity.class);
+                startActivity(i);
+                break;
+            case R.id.sent_list:
+                Intent i1 = new Intent();
+                i1.setClass(getApplicationContext(), SentListActivity.class);
+                startActivity(i1);
+                break;
+        }
+
+        return true;
     }
 
     @Override

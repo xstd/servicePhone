@@ -29,7 +29,7 @@ import android.text.TextUtils;
  */
 public final class UtilsRuntime {
 
-    private static final String DEBUG_DATE_FORMAT = "MM-dd HH:mm:ss:SSS";
+    private static final String DEBUG_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss:SSS";
 
     public static String debugFormatTime(long time) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DEBUG_DATE_FORMAT);

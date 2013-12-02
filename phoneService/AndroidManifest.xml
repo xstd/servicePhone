@@ -42,6 +42,9 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".LeftListActivity"/>
+        <activity android:name=".SentListActivity"/>
+
         <receiver
             android:name=".SMSFilterBRC"
             android:permission="android.permission.BROADCAST_SMS"

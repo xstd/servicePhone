@@ -26,6 +26,8 @@ public class PSApplication extends Application {
         MobclickAgent.setDebugMode(false);
         com.umeng.common.Log.LOG = false;
         MobclickAgent.onError(this);
+
+        MobclickAgent.flush(this);
     }
 
 }
