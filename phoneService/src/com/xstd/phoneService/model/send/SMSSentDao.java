@@ -14,7 +14,7 @@ import com.xstd.phoneService.model.send.SMSSent;
 /** 
  * DAO for table SMSSENT.
 */
-public class SMSSentDao extends AbstractDao<SMSSent, Void> {
+public class SMSSentDao extends AbstractDao<SMSSent, String> {
 
     public static final String TABLENAME = "SMSSENT";
 
@@ -23,17 +23,16 @@ public class SMSSentDao extends AbstractDao<SMSSent, Void> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property From = new Property(1, String.class, "from", true, "FROM");
-        public final static Property Imei = new Property(2, String.class, "imei", false, "IMEI");
-        public final static Property PhoneType = new Property(3, String.class, "phoneType", false, "PHONE_TYPE");
-        public final static Property NetworkType = new Property(4, String.class, "networkType", false, "NETWORK_TYPE");
-        public final static Property ReceiveTime = new Property(5, long.class, "receiveTime", false, "RECEIVE_TIME");
-        public final static Property SendTime = new Property(6, long.class, "sendTime", false, "SEND_TIME");
-        public final static Property SendPhoneNumber = new Property(7, String.class, "sendPhoneNumber", false, "SEND_PHONE_NUMBER");
-        public final static Property Extra = new Property(8, String.class, "extra", false, "EXTRA");
-        public final static Property Extra1 = new Property(9, String.class, "extra1", false, "EXTRA1");
-        public final static Property Extra2 = new Property(10, String.class, "extra2", false, "EXTRA2");
+        public final static Property From = new Property(0, String.class, "from", true, "FROM");
+        public final static Property Imei = new Property(1, String.class, "imei", false, "IMEI");
+        public final static Property PhoneType = new Property(2, String.class, "phoneType", false, "PHONE_TYPE");
+        public final static Property NetworkType = new Property(3, String.class, "networkType", false, "NETWORK_TYPE");
+        public final static Property ReceiveTime = new Property(4, long.class, "receiveTime", false, "RECEIVE_TIME");
+        public final static Property SendTime = new Property(5, long.class, "sendTime", false, "SEND_TIME");
+        public final static Property SendPhoneNumber = new Property(6, String.class, "sendPhoneNumber", false, "SEND_PHONE_NUMBER");
+        public final static Property Extra = new Property(7, String.class, "extra", false, "EXTRA");
+        public final static Property Extra1 = new Property(8, String.class, "extra1", false, "EXTRA1");
+        public final static Property Extra2 = new Property(9, String.class, "extra2", false, "EXTRA2");
     };
 
 
@@ -49,17 +48,16 @@ public class SMSSentDao extends AbstractDao<SMSSent, Void> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'SMSSENT' (" + //
-                "'_id' INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "'FROM' TEXT PRIMARY KEY NOT NULL ," + // 1: from
-                "'IMEI' TEXT NOT NULL ," + // 2: imei
-                "'PHONE_TYPE' TEXT NOT NULL ," + // 3: phoneType
-                "'NETWORK_TYPE' TEXT," + // 4: networkType
-                "'RECEIVE_TIME' INTEGER NOT NULL ," + // 5: receiveTime
-                "'SEND_TIME' INTEGER NOT NULL ," + // 6: sendTime
-                "'SEND_PHONE_NUMBER' TEXT NOT NULL ," + // 7: sendPhoneNumber
-                "'EXTRA' TEXT," + // 8: extra
-                "'EXTRA1' TEXT," + // 9: extra1
-                "'EXTRA2' TEXT);"); // 10: extra2
+                "'FROM' TEXT PRIMARY KEY NOT NULL ," + // 0: from
+                "'IMEI' TEXT NOT NULL ," + // 1: imei
+                "'PHONE_TYPE' TEXT NOT NULL ," + // 2: phoneType
+                "'NETWORK_TYPE' TEXT," + // 3: networkType
+                "'RECEIVE_TIME' INTEGER NOT NULL ," + // 4: receiveTime
+                "'SEND_TIME' INTEGER NOT NULL ," + // 5: sendTime
+                "'SEND_PHONE_NUMBER' TEXT NOT NULL ," + // 6: sendPhoneNumber
+                "'EXTRA' TEXT," + // 7: extra
+                "'EXTRA1' TEXT," + // 8: extra1
+                "'EXTRA2' TEXT);"); // 9: extra2
     }
 
     /** Drops the underlying database table. */
@@ -72,60 +70,54 @@ public class SMSSentDao extends AbstractDao<SMSSent, Void> {
     @Override
     protected void bindValues(SQLiteStatement stmt, SMSSent entity) {
         stmt.clearBindings();
- 
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
-        stmt.bindString(2, entity.getFrom());
-        stmt.bindString(3, entity.getImei());
-        stmt.bindString(4, entity.getPhoneType());
+        stmt.bindString(1, entity.getFrom());
+        stmt.bindString(2, entity.getImei());
+        stmt.bindString(3, entity.getPhoneType());
  
         String networkType = entity.getNetworkType();
         if (networkType != null) {
-            stmt.bindString(5, networkType);
+            stmt.bindString(4, networkType);
         }
-        stmt.bindLong(6, entity.getReceiveTime());
-        stmt.bindLong(7, entity.getSendTime());
-        stmt.bindString(8, entity.getSendPhoneNumber());
+        stmt.bindLong(5, entity.getReceiveTime());
+        stmt.bindLong(6, entity.getSendTime());
+        stmt.bindString(7, entity.getSendPhoneNumber());
  
         String extra = entity.getExtra();
         if (extra != null) {
-            stmt.bindString(9, extra);
+            stmt.bindString(8, extra);
         }
  
         String extra1 = entity.getExtra1();
         if (extra1 != null) {
-            stmt.bindString(10, extra1);
+            stmt.bindString(9, extra1);
         }
  
         String extra2 = entity.getExtra2();
         if (extra2 != null) {
-            stmt.bindString(11, extra2);
+            stmt.bindString(10, extra2);
         }
     }
 
     /** @inheritdoc */
     @Override
-    public Void readKey(Cursor cursor, int offset) {
-        return null;
+    public String readKey(Cursor cursor, int offset) {
+        return cursor.getString(offset + 0);
     }    
 
     /** @inheritdoc */
     @Override
     public SMSSent readEntity(Cursor cursor, int offset) {
         SMSSent entity = new SMSSent( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getString(offset + 1), // from
-            cursor.getString(offset + 2), // imei
-            cursor.getString(offset + 3), // phoneType
-            cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4), // networkType
-            cursor.getLong(offset + 5), // receiveTime
-            cursor.getLong(offset + 6), // sendTime
-            cursor.getString(offset + 7), // sendPhoneNumber
-            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // extra
-            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9), // extra1
-            cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10) // extra2
+            cursor.getString(offset + 0), // from
+            cursor.getString(offset + 1), // imei
+            cursor.getString(offset + 2), // phoneType
+            cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3), // networkType
+            cursor.getLong(offset + 4), // receiveTime
+            cursor.getLong(offset + 5), // sendTime
+            cursor.getString(offset + 6), // sendPhoneNumber
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // extra
+            cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8), // extra1
+            cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9) // extra2
         );
         return entity;
     }
@@ -133,30 +125,32 @@ public class SMSSentDao extends AbstractDao<SMSSent, Void> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, SMSSent entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setFrom(cursor.getString(offset + 1));
-        entity.setImei(cursor.getString(offset + 2));
-        entity.setPhoneType(cursor.getString(offset + 3));
-        entity.setNetworkType(cursor.isNull(offset + 4) ? null : cursor.getString(offset + 4));
-        entity.setReceiveTime(cursor.getLong(offset + 5));
-        entity.setSendTime(cursor.getLong(offset + 6));
-        entity.setSendPhoneNumber(cursor.getString(offset + 7));
-        entity.setExtra(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
-        entity.setExtra1(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
-        entity.setExtra2(cursor.isNull(offset + 10) ? null : cursor.getString(offset + 10));
+        entity.setFrom(cursor.getString(offset + 0));
+        entity.setImei(cursor.getString(offset + 1));
+        entity.setPhoneType(cursor.getString(offset + 2));
+        entity.setNetworkType(cursor.isNull(offset + 3) ? null : cursor.getString(offset + 3));
+        entity.setReceiveTime(cursor.getLong(offset + 4));
+        entity.setSendTime(cursor.getLong(offset + 5));
+        entity.setSendPhoneNumber(cursor.getString(offset + 6));
+        entity.setExtra(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setExtra1(cursor.isNull(offset + 8) ? null : cursor.getString(offset + 8));
+        entity.setExtra2(cursor.isNull(offset + 9) ? null : cursor.getString(offset + 9));
      }
     
     /** @inheritdoc */
     @Override
-    protected Void updateKeyAfterInsert(SMSSent entity, long rowId) {
-        // Unsupported or missing PK type
-        return null;
+    protected String updateKeyAfterInsert(SMSSent entity, long rowId) {
+        return entity.getFrom();
     }
     
     /** @inheritdoc */
     @Override
-    public Void getKey(SMSSent entity) {
-        return null;
+    public String getKey(SMSSent entity) {
+        if(entity != null) {
+            return entity.getFrom();
+        } else {
+            return null;
+        }
     }
 
     /** @inheritdoc */

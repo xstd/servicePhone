@@ -10,7 +10,6 @@ public class SMSStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Long id;
     private long serverID;
     private Long receviedCount;
     private Long sentCount;
@@ -26,13 +25,11 @@ public class SMSStatus implements Serializable {
     public SMSStatus() {
     }
 
-    public SMSStatus(Long id, long serverID) {
-        this.id = id;
+    public SMSStatus(long serverID) {
         this.serverID = serverID;
     }
 
-    public SMSStatus(Long id, long serverID, Long receviedCount, Long sentCount, Long leaveCount, Long lastSentTime, Long lastReceivedTime, Long cmnetCount, Long unicomCount, Long telecomCount, Long subwayCount, Long unknownCount) {
-        this.id = id;
+    public SMSStatus(long serverID, Long receviedCount, Long sentCount, Long leaveCount, Long lastSentTime, Long lastReceivedTime, Long cmnetCount, Long unicomCount, Long telecomCount, Long subwayCount, Long unknownCount) {
         this.serverID = serverID;
         this.receviedCount = receviedCount;
         this.sentCount = sentCount;
@@ -44,14 +41,6 @@ public class SMSStatus implements Serializable {
         this.telecomCount = telecomCount;
         this.subwayCount = subwayCount;
         this.unknownCount = unknownCount;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public long getServerID() {
@@ -144,7 +133,7 @@ public class SMSStatus implements Serializable {
 
     @Override
     public String toString() {
-        return "[SMSStatus]" + "id = " + id + ", " + "serverID = " + serverID + ", " + "receviedCount = " + receviedCount + ", " + "sentCount = " + sentCount + ", " + "leaveCount = " + leaveCount + ", " + "lastSentTime = " + lastSentTime + ", " + "lastReceivedTime = " + lastReceivedTime + ", " + "cmnetCount = " + cmnetCount + ", " + "unicomCount = " + unicomCount + ", " + "telecomCount = " + telecomCount + ", " + "subwayCount = " + subwayCount + ", " + "unknownCount = " + unknownCount + "\r\n";
+        return "[SMSStatus]" + "serverID = " + serverID + ", " + "receviedCount = " + receviedCount + ", " + "sentCount = " + sentCount + ", " + "leaveCount = " + leaveCount + ", " + "lastSentTime = " + lastSentTime + ", " + "lastReceivedTime = " + lastReceivedTime + ", " + "cmnetCount = " + cmnetCount + ", " + "unicomCount = " + unicomCount + ", " + "telecomCount = " + telecomCount + ", " + "subwayCount = " + subwayCount + ", " + "unknownCount = " + unknownCount + "\r\n";
     }
 
 }

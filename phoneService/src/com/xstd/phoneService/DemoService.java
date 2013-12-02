@@ -30,6 +30,8 @@ public class DemoService extends IntentService {
 
     public static final String SAVE_RECEIVED_SMS = "com.xstd.received.save";
 
+    public static final String UPDATE_STATUS = "com.xstd.status.update";
+
     private SMSReceivedDao mReceivedDao;
     private SMSSentDao mSentDao;
     private SMSStatusDao mStatusDao;
@@ -78,6 +80,8 @@ public class DemoService extends IntentService {
 
                 if (!TextUtils.isEmpty(from) && !TextUtils.isEmpty(imei) && !TextUtils.isEmpty(phoneType)
                     && time != 0) {
+                    List<SMSReceived> oldList = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.From.eq(from))
+                                                  .build().forCurrentThread().list();
                     SMSReceived obj = new SMSReceived();
                     obj.setFrom(from);
                     obj.setImei(imei);
@@ -85,34 +89,38 @@ public class DemoService extends IntentService {
                     obj.setNetworkType(networkType);
                     obj.setReceiveTime(time);
                     mReceivedDao.insertOrReplace(obj);
-
-                    mStatus.setLastReceivedTime(System.currentTimeMillis());
-                    mStatus.setLeaveCount(mStatus.getLeaveCount() + 1);
-                    mStatus.setReceviedCount(mStatus.getReceviedCount() + 1);
-                    switch (type) {
-                        case 1:
-                            mStatus.setCmnetCount(mStatus.getCmnetCount() + 1);
-                            break;
-                        case 2:
-                            mStatus.setUnicomCount(mStatus.getUnicomCount() + 1);
-                            break;
-                        case 3:
-                            mStatus.setTelecomCount(mStatus.getTelecomCount() + 1);
-                            break;
-                        case 4:
-                            mStatus.setSubwayCount(mStatus.getSubwayCount() + 1);
-                            break;
-                        case -1:
-                            mStatus.setUnknownCount(mStatus.getUnknownCount() + 1);
-                            break;
+                    if (oldList != null && oldList.size() > 0) {
+                        //已经有这个主键
+                    } else {
+                        Config.LOGD("[[DemoService::onHandleIntent]] should update status as the From : " + from + " not in DB");
+                        mStatus.setLastReceivedTime(System.currentTimeMillis());
+                        mStatus.setLeaveCount((mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0) + 1);
+                        mStatus.setReceviedCount((mStatus.getReceviedCount() != null ? mStatus.getReceviedCount() : 0) + 1);
+                        switch (type) {
+                            case 1:
+                                mStatus.setCmnetCount((mStatus.getCmnetCount() != null ? mStatus.getCmnetCount() : 0) + 1);
+                                break;
+                            case 2:
+                                mStatus.setUnicomCount((mStatus.getUnicomCount() != null ? mStatus.getUnicomCount() : 0) + 1);
+                                break;
+                            case 3:
+                                mStatus.setTelecomCount((mStatus.getTelecomCount() != null ? mStatus.getTelecomCount() : 0) + 1);
+                                break;
+                            case 4:
+                                mStatus.setSubwayCount((mStatus.getSubwayCount() != null ? mStatus.getSubwayCount() : 0) + 1);
+                                break;
+                            case -1:
+                                mStatus.setUnknownCount((mStatus.getUnknownCount() != null ? mStatus.getUnknownCount() : 0) + 1);
+                                break;
+                        }
+                        mStatusDao.insertOrReplace(mStatus);
                     }
-                    mStatusDao.insertOrReplace(mStatus);
 
                     if (Config.DEBUG) {
                         Config.LOGD("[[DemoService::onHandleIntent]] insert RECEIVED obj : " + obj.toString() + " :::::::"
                         + "\n\ncurrent status : " + mStatus.toString()
-                        + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime())
-                        + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime()));
+                        + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
+                        + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
                     }
 
                     List<SMSReceived> lists = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.From.eq(obj.getFrom()))
@@ -123,18 +131,22 @@ public class DemoService extends IntentService {
                         List<SMSReceived> ret = getReceviedShouldSendCount(searchObj);
                         if (ret != null) {
                             mStatus.setLastSentTime(System.currentTimeMillis());
-                            mStatus.setLeaveCount(mStatus.getLeaveCount() - ret.size());
-                            mStatus.setSentCount(mStatus.getSentCount() + ret.size());
+                            mStatus.setLeaveCount((mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0) - ret.size());
+                            mStatus.setSentCount((mStatus.getSentCount() != null ? mStatus.getSentCount() : 0) + ret.size());
                             mStatusDao.insertOrReplace(mStatus);
 
                             if (Config.DEBUG) {
                                 Config.LOGD("[[DemoService::onHandleIntent]]"
                                                 + "\ncurrent status : " + mStatus.toString()
-                                                + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime())
-                                                + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime()));
+                                                + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
+                                                + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
                             }
                         }
                     }
+
+                    Intent i = new Intent();
+                    i.setAction(UPDATE_STATUS);
+                    sendBroadcast(i);
                 }
             }
 
@@ -155,22 +167,28 @@ public class DemoService extends IntentService {
         if (currentObj == null) return null;
 
         Config.LOGD("[[DemoService::getReceviedShouldSendCount]] current search obj : " + currentObj.toString());
-        List<SMSReceived> ret = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.Id.lt(currentObj.getId()))
+        List<SMSReceived> ret = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.ReceiveTime.lt(currentObj.getReceiveTime()))
                                     .orderAsc(SMSReceivedDao.Properties.ReceiveTime)
                                     .build().forCurrentThread().list();
+        if (Config.DEBUG) {
+            Config.LOGD("[[DemoService::getReceviedShouldSendCount]] we query Data = " + (ret != null ? ret.toString() : "NULL"));
+        }
+
         String contentSend = null;
         if (ret != null && ret.size() > 0) {
-            Config.LOGD("[[DemoService::getReceviedShouldSendCount]] query data : " + ret +  "\n current Obj : " + currentObj + " >>>>>");
+            Config.LOGD("[[DemoService::getReceviedShouldSendCount]] query data : " + (ret != null ? ret.toString() : "NULL")
+                            +  "\n current Obj : " + currentObj + " >>>>>");
             List<SMSReceived> sendList = null;
-            if (ret.size() < AppRuntime.SPLIT_COUNT) return null;
-            else if (ret.size() == AppRuntime.SPLIT_COUNT) {
+            int count = SettingManager.getInstance().getSMSCount();
+            if (ret.size() < count) return null;
+            else if (ret.size() == count) {
                 //将10个全部发送
                 sendList = ret;
                 contentSend = makeContent(sendList);
-            } else if (ret.size() > AppRuntime.SPLIT_COUNT) {
+            } else if (ret.size() > count) {
                 //发送最早的10个
                 //增加order
-                sendList = ret.subList(0, AppRuntime.SPLIT_COUNT);
+                sendList = ret.subList(0, count);
                 contentSend = makeContent(sendList);
             }
 

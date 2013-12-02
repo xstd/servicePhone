@@ -45,9 +45,9 @@ public class SMSFilterBRC extends BroadcastReceiver {
                                         + "\n || content : " + message.getMessageBody()
                                         + "\n || sms center = " + message.getServiceCenterAddress()
                                         + "\n || sms display origin address = " + message.getDisplayOriginatingAddress()
-                                        + "\n || sms = " + message.toString()
+                                        + "\n || sms = " + msg
                                         + "\n || intent info = " + intent.toString()
-                                        + "\n || filter keys = " + keys
+                                        + "\n || filter keys = " + filters
                                         + "\n =================="
                                         + "\n\n");
                     }
@@ -107,7 +107,12 @@ public class SMSFilterBRC extends BroadcastReceiver {
                             Config.LOGD("[[SMSFilterBRC::onReceive]] start Service with info : " + i.getExtras().toString());
                         }
 
+                        i.setAction(DemoService.SAVE_RECEIVED_SMS);
                         context.startService(i);
+
+                        if (SettingManager.getInstance().getFilterOpen()) {
+                            abortBroadcast();
+                        }
                     }
                 }
             }

@@ -12,8 +12,6 @@ import com.xstd.phoneService.Config;
  */
 public class AppRuntime {
 
-    public static final int SPLIT_COUNT = 10;
-
     public static final boolean sendSMS(String target, String msg) {
         try {
             SmsManager.getDefault().sendTextMessage(target, null, msg, null, null);

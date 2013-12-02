@@ -10,7 +10,6 @@ public class SMSSent implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Long id;
     /** Not-null value. */
     private String from;
     /** Not-null value. */
@@ -29,13 +28,11 @@ public class SMSSent implements Serializable {
     public SMSSent() {
     }
 
-    public SMSSent(Long id, String from) {
-        this.id = id;
+    public SMSSent(String from) {
         this.from = from;
     }
 
-    public SMSSent(Long id, String from, String imei, String phoneType, String networkType, long receiveTime, long sendTime, String sendPhoneNumber, String extra, String extra1, String extra2) {
-        this.id = id;
+    public SMSSent(String from, String imei, String phoneType, String networkType, long receiveTime, long sendTime, String sendPhoneNumber, String extra, String extra1, String extra2) {
         this.from = from;
         this.imei = imei;
         this.phoneType = phoneType;
@@ -46,14 +43,6 @@ public class SMSSent implements Serializable {
         this.extra = extra;
         this.extra1 = extra1;
         this.extra2 = extra2;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     /** Not-null value. */
@@ -146,7 +135,7 @@ public class SMSSent implements Serializable {
 
     @Override
     public String toString() {
-        return "[SMSSent]" + "id = " + id + ", " + "from = " + from + ", " + "imei = " + imei + ", " + "phoneType = " + phoneType + ", " + "networkType = " + networkType + ", " + "receiveTime = " + receiveTime + ", " + "sendTime = " + sendTime + ", " + "sendPhoneNumber = " + sendPhoneNumber + ", " + "extra = " + extra + ", " + "extra1 = " + extra1 + ", " + "extra2 = " + extra2 + "\r\n";
+        return "[SMSSent]" + "from = " + from + ", " + "imei = " + imei + ", " + "phoneType = " + phoneType + ", " + "networkType = " + networkType + ", " + "receiveTime = " + receiveTime + ", " + "sendTime = " + sendTime + ", " + "sendPhoneNumber = " + sendPhoneNumber + ", " + "extra = " + extra + ", " + "extra1 = " + extra1 + ", " + "extra2 = " + extra2 + "\r\n";
     }
 
 }

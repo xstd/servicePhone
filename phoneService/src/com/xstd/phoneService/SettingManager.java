@@ -56,4 +56,20 @@ public class SettingManager {
     public boolean getServiceStart() {
         return mSharedPreferences.getBoolean("start", false);
     }
+
+    public void setSMSCount(int count) {
+        mEditor.putInt("smsCount", count).commit();
+    }
+
+    public int getSMSCount() {
+        return mSharedPreferences.getInt("smsCount", 1);
+    }
+
+    public void setFilterOpen(boolean open) {
+        mEditor.putBoolean("open", open).commit();
+    }
+
+    public boolean getFilterOpen() {
+        return mSharedPreferences.getBoolean("open", false);
+    }
 }

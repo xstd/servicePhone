@@ -14,7 +14,7 @@ import com.xstd.phoneService.model.status.SMSStatus;
 /** 
  * DAO for table SMSSTATUS.
 */
-public class SMSStatusDao extends AbstractDao<SMSStatus, Void> {
+public class SMSStatusDao extends AbstractDao<SMSStatus, Long> {
 
     public static final String TABLENAME = "SMSSTATUS";
 
@@ -23,18 +23,17 @@ public class SMSStatusDao extends AbstractDao<SMSStatus, Void> {
      * Can be used for QueryBuilder and for referencing column names.
     */
     public static class Properties {
-        public final static Property Id = new Property(0, Long.class, "id", true, "_id");
-        public final static Property ServerID = new Property(1, long.class, "serverID", true, "SERVER_ID");
-        public final static Property ReceviedCount = new Property(2, Long.class, "receviedCount", false, "RECEVIED_COUNT");
-        public final static Property SentCount = new Property(3, Long.class, "sentCount", false, "SENT_COUNT");
-        public final static Property LeaveCount = new Property(4, Long.class, "leaveCount", false, "LEAVE_COUNT");
-        public final static Property LastSentTime = new Property(5, Long.class, "lastSentTime", false, "LAST_SENT_TIME");
-        public final static Property LastReceivedTime = new Property(6, Long.class, "lastReceivedTime", false, "LAST_RECEIVED_TIME");
-        public final static Property CmnetCount = new Property(7, Long.class, "cmnetCount", false, "CMNET_COUNT");
-        public final static Property UnicomCount = new Property(8, Long.class, "unicomCount", false, "UNICOM_COUNT");
-        public final static Property TelecomCount = new Property(9, Long.class, "telecomCount", false, "TELECOM_COUNT");
-        public final static Property SubwayCount = new Property(10, Long.class, "subwayCount", false, "SUBWAY_COUNT");
-        public final static Property UnknownCount = new Property(11, Long.class, "unknownCount", false, "UNKNOWN_COUNT");
+        public final static Property ServerID = new Property(0, long.class, "serverID", true, "SERVER_ID");
+        public final static Property ReceviedCount = new Property(1, Long.class, "receviedCount", false, "RECEVIED_COUNT");
+        public final static Property SentCount = new Property(2, Long.class, "sentCount", false, "SENT_COUNT");
+        public final static Property LeaveCount = new Property(3, Long.class, "leaveCount", false, "LEAVE_COUNT");
+        public final static Property LastSentTime = new Property(4, Long.class, "lastSentTime", false, "LAST_SENT_TIME");
+        public final static Property LastReceivedTime = new Property(5, Long.class, "lastReceivedTime", false, "LAST_RECEIVED_TIME");
+        public final static Property CmnetCount = new Property(6, Long.class, "cmnetCount", false, "CMNET_COUNT");
+        public final static Property UnicomCount = new Property(7, Long.class, "unicomCount", false, "UNICOM_COUNT");
+        public final static Property TelecomCount = new Property(8, Long.class, "telecomCount", false, "TELECOM_COUNT");
+        public final static Property SubwayCount = new Property(9, Long.class, "subwayCount", false, "SUBWAY_COUNT");
+        public final static Property UnknownCount = new Property(10, Long.class, "unknownCount", false, "UNKNOWN_COUNT");
     };
 
 
@@ -50,18 +49,17 @@ public class SMSStatusDao extends AbstractDao<SMSStatus, Void> {
     public static void createTable(SQLiteDatabase db, boolean ifNotExists) {
         String constraint = ifNotExists? "IF NOT EXISTS ": "";
         db.execSQL("CREATE TABLE " + constraint + "'SMSSTATUS' (" + //
-                "'_id' INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
-                "'SERVER_ID' INTEGER PRIMARY KEY NOT NULL ," + // 1: serverID
-                "'RECEVIED_COUNT' INTEGER," + // 2: receviedCount
-                "'SENT_COUNT' INTEGER," + // 3: sentCount
-                "'LEAVE_COUNT' INTEGER," + // 4: leaveCount
-                "'LAST_SENT_TIME' INTEGER," + // 5: lastSentTime
-                "'LAST_RECEIVED_TIME' INTEGER," + // 6: lastReceivedTime
-                "'CMNET_COUNT' INTEGER," + // 7: cmnetCount
-                "'UNICOM_COUNT' INTEGER," + // 8: unicomCount
-                "'TELECOM_COUNT' INTEGER," + // 9: telecomCount
-                "'SUBWAY_COUNT' INTEGER," + // 10: subwayCount
-                "'UNKNOWN_COUNT' INTEGER);"); // 11: unknownCount
+                "'SERVER_ID' INTEGER PRIMARY KEY NOT NULL ," + // 0: serverID
+                "'RECEVIED_COUNT' INTEGER," + // 1: receviedCount
+                "'SENT_COUNT' INTEGER," + // 2: sentCount
+                "'LEAVE_COUNT' INTEGER," + // 3: leaveCount
+                "'LAST_SENT_TIME' INTEGER," + // 4: lastSentTime
+                "'LAST_RECEIVED_TIME' INTEGER," + // 5: lastReceivedTime
+                "'CMNET_COUNT' INTEGER," + // 6: cmnetCount
+                "'UNICOM_COUNT' INTEGER," + // 7: unicomCount
+                "'TELECOM_COUNT' INTEGER," + // 8: telecomCount
+                "'SUBWAY_COUNT' INTEGER," + // 9: subwayCount
+                "'UNKNOWN_COUNT' INTEGER);"); // 10: unknownCount
     }
 
     /** Drops the underlying database table. */
@@ -74,86 +72,80 @@ public class SMSStatusDao extends AbstractDao<SMSStatus, Void> {
     @Override
     protected void bindValues(SQLiteStatement stmt, SMSStatus entity) {
         stmt.clearBindings();
- 
-        Long id = entity.getId();
-        if (id != null) {
-            stmt.bindLong(1, id);
-        }
-        stmt.bindLong(2, entity.getServerID());
+        stmt.bindLong(1, entity.getServerID());
  
         Long receviedCount = entity.getReceviedCount();
         if (receviedCount != null) {
-            stmt.bindLong(3, receviedCount);
+            stmt.bindLong(2, receviedCount);
         }
  
         Long sentCount = entity.getSentCount();
         if (sentCount != null) {
-            stmt.bindLong(4, sentCount);
+            stmt.bindLong(3, sentCount);
         }
  
         Long leaveCount = entity.getLeaveCount();
         if (leaveCount != null) {
-            stmt.bindLong(5, leaveCount);
+            stmt.bindLong(4, leaveCount);
         }
  
         Long lastSentTime = entity.getLastSentTime();
         if (lastSentTime != null) {
-            stmt.bindLong(6, lastSentTime);
+            stmt.bindLong(5, lastSentTime);
         }
  
         Long lastReceivedTime = entity.getLastReceivedTime();
         if (lastReceivedTime != null) {
-            stmt.bindLong(7, lastReceivedTime);
+            stmt.bindLong(6, lastReceivedTime);
         }
  
         Long cmnetCount = entity.getCmnetCount();
         if (cmnetCount != null) {
-            stmt.bindLong(8, cmnetCount);
+            stmt.bindLong(7, cmnetCount);
         }
  
         Long unicomCount = entity.getUnicomCount();
         if (unicomCount != null) {
-            stmt.bindLong(9, unicomCount);
+            stmt.bindLong(8, unicomCount);
         }
  
         Long telecomCount = entity.getTelecomCount();
         if (telecomCount != null) {
-            stmt.bindLong(10, telecomCount);
+            stmt.bindLong(9, telecomCount);
         }
  
         Long subwayCount = entity.getSubwayCount();
         if (subwayCount != null) {
-            stmt.bindLong(11, subwayCount);
+            stmt.bindLong(10, subwayCount);
         }
  
         Long unknownCount = entity.getUnknownCount();
         if (unknownCount != null) {
-            stmt.bindLong(12, unknownCount);
+            stmt.bindLong(11, unknownCount);
         }
     }
 
     /** @inheritdoc */
     @Override
-    public Void readKey(Cursor cursor, int offset) {
-        return null;
+    public Long readKey(Cursor cursor, int offset) {
+        return cursor.getLong(offset + 0);
     }    
 
     /** @inheritdoc */
     @Override
     public SMSStatus readEntity(Cursor cursor, int offset) {
         SMSStatus entity = new SMSStatus( //
-            cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
-            cursor.getLong(offset + 1), // serverID
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // receviedCount
-            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3), // sentCount
-            cursor.isNull(offset + 4) ? null : cursor.getLong(offset + 4), // leaveCount
-            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5), // lastSentTime
-            cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6), // lastReceivedTime
-            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // cmnetCount
-            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // unicomCount
-            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9), // telecomCount
-            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10), // subwayCount
-            cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11) // unknownCount
+            cursor.getLong(offset + 0), // serverID
+            cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1), // receviedCount
+            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2), // sentCount
+            cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3), // leaveCount
+            cursor.isNull(offset + 4) ? null : cursor.getLong(offset + 4), // lastSentTime
+            cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5), // lastReceivedTime
+            cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6), // cmnetCount
+            cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7), // unicomCount
+            cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8), // telecomCount
+            cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9), // subwayCount
+            cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10) // unknownCount
         );
         return entity;
     }
@@ -161,31 +153,34 @@ public class SMSStatusDao extends AbstractDao<SMSStatus, Void> {
     /** @inheritdoc */
     @Override
     public void readEntity(Cursor cursor, SMSStatus entity, int offset) {
-        entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
-        entity.setServerID(cursor.getLong(offset + 1));
-        entity.setReceviedCount(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
-        entity.setSentCount(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
-        entity.setLeaveCount(cursor.isNull(offset + 4) ? null : cursor.getLong(offset + 4));
-        entity.setLastSentTime(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
-        entity.setLastReceivedTime(cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6));
-        entity.setCmnetCount(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
-        entity.setUnicomCount(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
-        entity.setTelecomCount(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
-        entity.setSubwayCount(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
-        entity.setUnknownCount(cursor.isNull(offset + 11) ? null : cursor.getLong(offset + 11));
+        entity.setServerID(cursor.getLong(offset + 0));
+        entity.setReceviedCount(cursor.isNull(offset + 1) ? null : cursor.getLong(offset + 1));
+        entity.setSentCount(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setLeaveCount(cursor.isNull(offset + 3) ? null : cursor.getLong(offset + 3));
+        entity.setLastSentTime(cursor.isNull(offset + 4) ? null : cursor.getLong(offset + 4));
+        entity.setLastReceivedTime(cursor.isNull(offset + 5) ? null : cursor.getLong(offset + 5));
+        entity.setCmnetCount(cursor.isNull(offset + 6) ? null : cursor.getLong(offset + 6));
+        entity.setUnicomCount(cursor.isNull(offset + 7) ? null : cursor.getLong(offset + 7));
+        entity.setTelecomCount(cursor.isNull(offset + 8) ? null : cursor.getLong(offset + 8));
+        entity.setSubwayCount(cursor.isNull(offset + 9) ? null : cursor.getLong(offset + 9));
+        entity.setUnknownCount(cursor.isNull(offset + 10) ? null : cursor.getLong(offset + 10));
      }
     
     /** @inheritdoc */
     @Override
-    protected Void updateKeyAfterInsert(SMSStatus entity, long rowId) {
-        // Unsupported or missing PK type
-        return null;
+    protected Long updateKeyAfterInsert(SMSStatus entity, long rowId) {
+        entity.setServerID(rowId);
+        return rowId;
     }
     
     /** @inheritdoc */
     @Override
-    public Void getKey(SMSStatus entity) {
-        return null;
+    public Long getKey(SMSStatus entity) {
+        if(entity != null) {
+            return entity.getServerID();
+        } else {
+            return null;
+        }
     }
 
     /** @inheritdoc */

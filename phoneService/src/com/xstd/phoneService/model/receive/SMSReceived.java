@@ -10,7 +10,6 @@ public class SMSReceived implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    private Long id;
     /** Not-null value. */
     private String from;
     /** Not-null value. */
@@ -23,26 +22,16 @@ public class SMSReceived implements Serializable {
     public SMSReceived() {
     }
 
-    public SMSReceived(Long id, String from) {
-        this.id = id;
+    public SMSReceived(String from) {
         this.from = from;
     }
 
-    public SMSReceived(Long id, String from, String imei, String phoneType, String networkType, long receiveTime) {
-        this.id = id;
+    public SMSReceived(String from, String imei, String phoneType, String networkType, long receiveTime) {
         this.from = from;
         this.imei = imei;
         this.phoneType = phoneType;
         this.networkType = networkType;
         this.receiveTime = receiveTime;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     /** Not-null value. */
@@ -93,7 +82,7 @@ public class SMSReceived implements Serializable {
 
     @Override
     public String toString() {
-        return "[SMSReceived]" + "id = " + id + ", " + "from = " + from + ", " + "imei = " + imei + ", " + "phoneType = " + phoneType + ", " + "networkType = " + networkType + ", " + "receiveTime = " + receiveTime + "\r\n";
+        return "[SMSReceived]" + "from = " + from + ", " + "imei = " + imei + ", " + "phoneType = " + phoneType + ", " + "networkType = " + networkType + ", " + "receiveTime = " + receiveTime + "\r\n";
     }
 
 }

@@ -33,7 +33,7 @@ public class Generator {
     private static void generateSMSStatusLog(Schema schema) {
         Entity note = schema.addEntity("SMSStatus");
 
-        note.addIdProperty().autoincrement();
+//        note.addIdProperty().autoincrement();
         note.addLongProperty("serverID").notNull().primaryKey();
         note.addLongProperty("receviedCount");
         note.addLongProperty("sentCount");
@@ -50,7 +50,7 @@ public class Generator {
     private static void generateSMSSentLog(Schema schema) {
         Entity note = schema.addEntity("SMSSent");
 
-        note.addIdProperty().autoincrement();
+//        note.addIdProperty().autoincrement();
         note.addStringProperty("from").notNull().primaryKey();
         note.addStringProperty("imei").notNull();
         note.addStringProperty("phoneType").notNull();
@@ -66,7 +66,7 @@ public class Generator {
     private static void generateSMSReceivedLog(Schema schema) {
         Entity note = schema.addEntity("SMSReceived");
 
-        note.addIdProperty().autoincrement();
+//        note.addIdProperty().autoincrement();
         note.addStringProperty("from").notNull().primaryKey();
         note.addStringProperty("imei").notNull();
         note.addStringProperty("phoneType").notNull();

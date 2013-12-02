@@ -13,6 +13,8 @@ public class Config {
 
     public static final boolean DEBUG = true;
 
+    public static final String FILTER = "IMEI;PHONETYPE;NT";
+
     public static final void LOGD(String msg) {
         if (DEBUG) {
             DebugLog.d("com.xstd.phoneService", msg);
