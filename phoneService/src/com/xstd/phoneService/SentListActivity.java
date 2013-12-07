@@ -90,7 +90,7 @@ public class SentListActivity extends ListActivity {
             ((TextView) ret.findViewById(R.id.time)).setText("发送时间:" + UtilsRuntime.debugFormatTime(dataList.get(position).getSendTime()));
             ((TextView) ret.findViewById(R.id.more)).setText(dataList.get(position).getNetworkType()
                                                                  + " : " + dataList.get(position).getPhoneType()
-                                                                 + "\n发送到的手机:" + dataList.get(position).getSendPhoneNumber());
+                                                                 + "\n发送到的手机:" + dataList.get(position).getSendPhoneNumber() + "进行处理");
 
             return ret;
         }
