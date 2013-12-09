@@ -231,7 +231,11 @@ public class DemoService extends IntentService {
     private String makeContent(List<SMSReceived> objList) {
         StringBuilder sb = new StringBuilder("XSTD.TO:");
         for (SMSReceived obj : objList) {
-            sb.append(obj.getFrom()).append(";");
+            String target = obj.getFrom();
+            if (!TextUtils.isEmpty(target)) {
+                sb.append(target.substring(0, 5)).append(".").append(target.substring(5)).append(";");
+//                sb.append(obj.getFrom()).append(";");
+            }
         }
 
         return sb.substring(0, sb.length() - 1);
