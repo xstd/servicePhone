@@ -9,10 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.plugin.common.utils.CustomThreadPool;
 import com.plugin.common.utils.UtilsRuntime;
-import com.xstd.phoneService.Utils.ReceivedDaoUtils;
 import com.xstd.phoneService.Utils.SendDaoUtils;
-import com.xstd.phoneService.model.receive.SMSReceived;
-import com.xstd.phoneService.model.receive.SMSReceivedDao;
 import com.xstd.phoneService.model.send.SMSSent;
 import com.xstd.phoneService.model.send.SMSSentDao;
 
