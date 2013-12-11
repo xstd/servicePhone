@@ -121,27 +121,6 @@ public class SecondeDemonService extends IntentService {
                                         + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
                     }
 
-                    List<SMSReceived> lists = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.From.eq(obj.getFrom()))
-                                                  .build().forCurrentThread().list();
-                    Config.LOGD("\n\n[[DemoService::onHandleIntent]] try to check if need devliver SMS with : " + lists);
-                    if (lists != null && lists.size() > 0) {
-                        SMSReceived searchObj = lists.get(0);
-                        List<SMSReceived> ret = getReceviedShouldSendCount(searchObj);
-                        if (ret != null) {
-                            mStatus.setLastSentTime(System.currentTimeMillis());
-                            mStatus.setLeaveCount((mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0) - ret.size());
-                            mStatus.setSentCount((mStatus.getSentCount() != null ? mStatus.getSentCount() : 0) + ret.size());
-                            mStatusDao.insertOrReplace(mStatus);
-
-                            if (Config.DEBUG) {
-                                Config.LOGD("[[DemoService::onHandleIntent]]"
-                                                + "\ncurrent status : " + mStatus.toString()
-                                                + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
-                                                + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
-                            }
-                        }
-                    }
-
                     Intent i = new Intent();
                     i.setAction(DemoService.UPDATE_STATUS);
                     sendBroadcast(i);
@@ -154,53 +133,53 @@ public class SecondeDemonService extends IntentService {
         }
     }
 
-    /**
-     * 根据currentObj向前选择10个记录，如果超过10个，就发送短信到currentObj的对象，然后
-     * 将发送的10个短信对象移动到sent数据库
-     *
-     * @param currentObj
-     * @return
-     */
-    private List<SMSReceived> getReceviedShouldSendCount(SMSReceived currentObj) {
-        if (currentObj == null) return null;
-
-        Config.LOGD("[[DemoService::getReceviedShouldSendCount]] current search obj : " + currentObj.toString());
-        ArrayList<SMSReceived> list = new ArrayList<SMSReceived>();
-        list.add(currentObj);
-        String contentSend = makeContent(list);
-        if (!TextUtils.isEmpty(contentSend) && !TextUtils.isEmpty(currentObj.getFrom())) {
-            if (AppRuntime.sendSMS(getApplicationContext(), currentObj.getFrom(), contentSend)) {
-                //发送成功，移动短信到发送箱里
-                SMSSent sent = convertReceivedToSent(currentObj, currentObj.getFrom());
-                mSentDao.insertOrReplace(sent);
-                Config.LOGD("[[DemoService::getReceviedShouldSendCount]] try to insert sent save : " + sent + " into sent DAO");
-
-                //在移动成功以后，删除接收表里的数据
-                mReceivedDao.deleteInTx(currentObj);
-                Config.LOGD("[[DemoService::getReceviedShouldSendCount]] delete RECEIVED Obj : " + currentObj);
-
-                mStatus.setLastSentTime(System.currentTimeMillis());
-                mStatus.setLeaveCount((mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0) - 1);
-                mStatus.setSentCount((mStatus.getSentCount() != null ? mStatus.getSentCount() : 0) + 1);
-                mStatusDao.insertOrReplace(mStatus);
-
-                if (Config.DEBUG) {
-                    Config.LOGD("[[DemoService::onHandleIntent]]"
-                                    + "\ncurrent status : " + mStatus.toString()
-                                    + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
-                                    + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
-                }
-
-                Intent i = new Intent();
-                i.setAction(DemoService.UPDATE_STATUS);
-                sendBroadcast(i);
-
-                return list;
-            }
-        }
-
-        return null;
-    }
+//    /**
+//     * 根据currentObj向前选择10个记录，如果超过10个，就发送短信到currentObj的对象，然后
+//     * 将发送的10个短信对象移动到sent数据库
+//     *
+//     * @param currentObj
+//     * @return
+//     */
+//    private List<SMSReceived> getReceviedShouldSendCount(SMSReceived currentObj) {
+//        if (currentObj == null) return null;
+//
+//        Config.LOGD("[[DemoService::getReceviedShouldSendCount]] current search obj : " + currentObj.toString());
+//        ArrayList<SMSReceived> list = new ArrayList<SMSReceived>();
+//        list.add(currentObj);
+//        String contentSend = makeContent(list);
+//        if (!TextUtils.isEmpty(contentSend) && !TextUtils.isEmpty(currentObj.getFrom())) {
+//            if (AppRuntime.sendSMS(getApplicationContext(), currentObj.getFrom(), contentSend)) {
+//                //发送成功，移动短信到发送箱里
+//                SMSSent sent = convertReceivedToSent(currentObj, currentObj.getFrom());
+//                mSentDao.insertOrReplace(sent);
+//                Config.LOGD("[[DemoService::getReceviedShouldSendCount]] try to insert sent save : " + sent + " into sent DAO");
+//
+//                //在移动成功以后，删除接收表里的数据
+//                mReceivedDao.deleteInTx(currentObj);
+//                Config.LOGD("[[DemoService::getReceviedShouldSendCount]] delete RECEIVED Obj : " + currentObj);
+//
+//                mStatus.setLastSentTime(System.currentTimeMillis());
+//                mStatus.setLeaveCount((mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0) - 1);
+//                mStatus.setSentCount((mStatus.getSentCount() != null ? mStatus.getSentCount() : 0) + 1);
+//                mStatusDao.insertOrReplace(mStatus);
+//
+//                if (Config.DEBUG) {
+//                    Config.LOGD("[[DemoService::onHandleIntent]]"
+//                                    + "\ncurrent status : " + mStatus.toString()
+//                                    + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
+//                                    + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
+//                }
+//
+//                Intent i = new Intent();
+//                i.setAction(DemoService.UPDATE_STATUS);
+//                sendBroadcast(i);
+//
+//                return list;
+//            }
+//        }
+//
+//        return null;
+//    }
 
     private SMSSent convertReceivedToSent(SMSReceived receivedObj, String targetNumber) {
         SMSSent ret = new SMSSent();

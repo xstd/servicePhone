@@ -1,5 +1,6 @@
 package com.xstd.phoneService;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,8 +15,12 @@ import android.view.MenuItem;
 import android.widget.*;
 import com.plugin.common.utils.UtilsRuntime;
 import com.umeng.analytics.MobclickAgent;
+import com.xstd.phoneService.Utils.ExploreUtil;
+import com.xstd.phoneService.Utils.ReceivedDaoUtils;
 import com.xstd.phoneService.Utils.StatusDaoUtils;
 import com.xstd.phoneService.firstService.DemoService;
+import com.xstd.phoneService.model.receive.SMSReceived;
+import com.xstd.phoneService.model.receive.SMSReceivedDao;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
 
@@ -34,6 +39,8 @@ public class SecondActivity extends Activity {
 
     private SMSStatusDao mStatusDao;
     private SMSStatus mStatus;
+
+    private SMSReceivedDao mSMSReceivedDao;
 
     private static final int UPDATE_STATUS = 10000;
     private Handler mHandler = new Handler() {
@@ -61,6 +68,10 @@ public class SecondActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.second);
+
+        mSMSReceivedDao = ReceivedDaoUtils.getDaoSession(getApplicationContext()).getSMSReceivedDao();
+        ActionBar actionBar = getActionBar();
+        actionBar.setTitle(getString(R.string.app_name) + "(V" + UtilsRuntime.getVersionName(getApplicationContext()) + ")");
 
         mFilterET = (EditText) findViewById(R.id.filter);
         mStatusTV = (TextView) findViewById(R.id.status);
@@ -96,7 +107,7 @@ public class SecondActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.menu_seconde, menu);
 
         return true;
     }
@@ -113,6 +124,13 @@ public class SecondActivity extends Activity {
                 Intent i1 = new Intent();
                 i1.setClass(getApplicationContext(), SentListActivity.class);
                 startActivity(i1);
+                break;
+            case R.id.explore:
+                if (ExploreUtil.explore("/sdcard/phone_number_map.txt", mSMSReceivedDao)) {
+                    Toast.makeText(getApplicationContext(), "成功导出数据到/sdcard/phone_number_map.txt", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "导出数据到/sdcard/phone_number_map.txt 失败", Toast.LENGTH_LONG).show();
+                }
                 break;
         }
 

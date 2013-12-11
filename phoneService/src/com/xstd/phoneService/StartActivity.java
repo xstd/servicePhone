@@ -1,5 +1,6 @@
 package com.xstd.phoneService;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -68,6 +69,9 @@ public class StartActivity extends Activity {
         mConfirmBtn = findViewById(R.id.confirm);
         mStatusTV = (TextView) findViewById(R.id.status);
         mSwitcher = (Switch) findViewById(R.id.abort_switch);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setTitle(getString(R.string.app_name) + "(V" + UtilsRuntime.getVersionName(getApplicationContext()) + ")");
 
         mSwitcher.setChecked(SettingManager.getInstance().getFilterOpen());
         mSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
