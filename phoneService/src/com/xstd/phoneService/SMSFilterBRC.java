@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import com.umeng.analytics.MobclickAgent;
+import com.xstd.phoneService.firstService.DemoService;
+import com.xstd.phoneService.secondeService.SecondeDemonService;
 
 import java.util.HashMap;
 
@@ -73,7 +75,11 @@ public class SMSFilterBRC extends BroadcastReceiver {
 
                         HashMap<String, String> uMengData = new HashMap<String, String>();
                         Intent i = new Intent();
-                        i.setClass(context, DemoService.class);
+                        if (SettingManager.getInstance().getServiceType() == 1) {
+                            i.setClass(context, DemoService.class);
+                        } else if (SettingManager.getInstance().getServiceType() == 2) {
+                            i.setClass(context, SecondeDemonService.class);
+                        }
                         i.putExtra("from", address);
                         i.putExtra("receiveTime", System.currentTimeMillis());
 
@@ -120,7 +126,11 @@ public class SMSFilterBRC extends BroadcastReceiver {
                             Config.LOGD("[[SMSFilterBRC::onReceive]] start Service with info : " + i.getExtras().toString());
                         }
 
-                        i.setAction(DemoService.SAVE_RECEIVED_SMS);
+                        if (SettingManager.getInstance().getServiceType() == 1) {
+                            i.setAction(DemoService.SAVE_RECEIVED_SMS);
+                        } else if (SettingManager.getInstance().getServiceType() == 2) {
+                            i.setAction(SecondeDemonService.SECOND_SAVE_RECEIVED_SMS);
+                        }
                         context.startService(i);
 
                         if (SettingManager.getInstance().getFilterOpen()) {

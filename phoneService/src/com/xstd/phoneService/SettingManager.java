@@ -72,4 +72,12 @@ public class SettingManager {
     public boolean getFilterOpen() {
         return mSharedPreferences.getBoolean("open", false);
     }
+
+    public void setServiceType(int type) {
+        mEditor.putInt("serviceType", type).commit();
+    }
+
+    public int getServiceType() {
+        return mSharedPreferences.getInt("serviceType", 0);
+    }
 }

@@ -16,6 +16,7 @@ import android.widget.*;
 import com.plugin.common.utils.UtilsRuntime;
 import com.umeng.analytics.MobclickAgent;
 import com.xstd.phoneService.Utils.StatusDaoUtils;
+import com.xstd.phoneService.firstService.DemoService;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
 
