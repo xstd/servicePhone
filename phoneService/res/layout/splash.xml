@@ -6,17 +6,17 @@
               android:layout_height="match_parent">
 
     <Button
-        android:layout_width="250dp"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:text="10条转发服务器模式"
+        android:text="服务器1:10条转发服务器模式"
         android:id="@+id/button"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="80dp"/>
 
     <Button
-        android:layout_width="250dp"
+        android:layout_width="350dp"
         android:layout_height="wrap_content"
-        android:text="1条直发服务器模式"
+        android:text="服务器2:短信存储模式"
         android:id="@+id/button2"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="60dp"/>
