@@ -13,13 +13,13 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.*;
+import com.plugin.common.utils.CustomThreadPool;
 import com.plugin.common.utils.UtilsRuntime;
 import com.umeng.analytics.MobclickAgent;
 import com.xstd.phoneService.Utils.ExploreUtil;
 import com.xstd.phoneService.Utils.ReceivedDaoUtils;
 import com.xstd.phoneService.Utils.StatusDaoUtils;
 import com.xstd.phoneService.firstService.DemoService;
-import com.xstd.phoneService.model.receive.SMSReceived;
 import com.xstd.phoneService.model.receive.SMSReceivedDao;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
@@ -126,11 +126,26 @@ public class SecondActivity extends Activity {
                 startActivity(i1);
                 break;
             case R.id.explore:
-                if (ExploreUtil.explore("/sdcard/phone_number_map.txt", mSMSReceivedDao)) {
-                    Toast.makeText(getApplicationContext(), "成功导出数据到/sdcard/phone_number_map.txt", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), "导出数据到/sdcard/phone_number_map.txt 失败", Toast.LENGTH_LONG).show();
-                }
+                CustomThreadPool.asyncWork(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ExploreUtil.explore("/sdcard/phone_number_map.txt", mSMSReceivedDao)) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "成功导出数据到/sdcard/phone_number_map.txt", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getApplicationContext(), "导出数据到/sdcard/phone_number_map.txt 失败", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                });
                 break;
         }
 

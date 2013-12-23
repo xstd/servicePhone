@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.xstd.phoneService"
-          android:versionCode="4"
-          android:versionName="1.4">
+          android:versionCode="5"
+          android:versionName="1.5">
 
     <uses-sdk android:minSdkVersion="14"/>
 
@@ -27,7 +27,7 @@
         android:name="com.xstd.phoneService.PSApplication">
 
         <meta-data
-            android:value="529845c956240b572d00165f"
+            android:value="52b658b856240bf5c217f864"
             android:name="UMENG_APPKEY"/>
         <meta-data
             android:value="10000"
