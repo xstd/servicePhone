@@ -38,4 +38,28 @@ public class ExploreUtil {
         return false;
     }
 
+    public static boolean exportDetail(String targetFileFullPath, SMSReceivedDao receivedDao) {
+        if (TextUtils.isEmpty(targetFileFullPath) || receivedDao == null) return false;
+
+        try {
+            List<SMSReceived> data = receivedDao.loadAll();
+            if (data != null && data.size() > 0) {
+                Properties p = new Properties();
+                for (SMSReceived item : data) {
+                    String info = item.getImei() + ";" + item.getNetworkType() + ";" + item.getPhoneType();
+                    p.put(item.getFrom(), info);
+                }
+                FileOutputStream out = new FileOutputStream(new File(targetFileFullPath));
+                OutputStreamWriter w = new OutputStreamWriter(out, "utf-8");
+                p.store(w, null);
+
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
 }

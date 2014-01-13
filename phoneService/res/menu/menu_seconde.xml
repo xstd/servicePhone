@@ -17,11 +17,11 @@
                 android:showAsAction="ifRoom"
                 android:title="剩余手机">
             </item>
-            <item
-                android:id="@+id/sent_list"
-                android:showAsAction="ifRoom"
-                android:title="发送手机">
-            </item>
+            <!--<item-->
+                <!--android:id="@+id/sent_list"-->
+                <!--android:showAsAction="ifRoom"-->
+                <!--android:title="发送手机">-->
+            <!--</item>-->
         </menu>
     </item>
 </menu>
