@@ -184,14 +184,14 @@ public class SecondActivity extends Activity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(), ("成功备份数据到" + targetFile), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), ("成功迁移数据到" + targetFile), Toast.LENGTH_LONG).show();
                         }
                     });
                 } else {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(), "备份数据到" + targetFile + "失败", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "迁移数据到" + targetFile + "失败", Toast.LENGTH_LONG).show();
                         }
                     });
                 }
