@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,6 +16,13 @@ import java.util.Properties;
  * Created by michael on 13-12-11.
  */
 public class ExploreUtil {
+
+    private static final String DEBUG_DATE_FORMAT = "yyyy-MM-dd-HH-mm-ss";
+
+    public static String formatTime(long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DEBUG_DATE_FORMAT);
+        return dateFormat.format(time);
+    }
 
     public static boolean explore(String targetFileFullPath, SMSReceivedDao receivedDao) {
         if (TextUtils.isEmpty(targetFileFullPath) || receivedDao == null) return false;
@@ -47,7 +55,7 @@ public class ExploreUtil {
             if (data != null && data.size() > 0) {
                 FileWriter writer = new FileWriter(targetFileFullPath);
                 for (SMSReceived info : data) {
-                    writer.write(info.getFrom() + "=" + info.getImei() + "=" + info.getNetworkType() + "="
+                    writer.write(formatTime(info.getReceiveTime()) + "=" + info.getFrom() + "=" + info.getImei() + "=" + info.getNetworkType() + "="
                                     + info.getPhoneType() + "=" + String.valueOf(info.getReceiveTime()));
                     writer.write("\n");
                 }
