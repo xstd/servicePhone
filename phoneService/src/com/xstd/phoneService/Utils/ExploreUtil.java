@@ -6,6 +6,7 @@ import com.xstd.phoneService.model.receive.SMSReceivedDao;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Properties;
@@ -36,6 +37,29 @@ public class ExploreUtil {
         }
 
         return false;
+    }
+
+    public static List<SMSReceived> exploreBackupData(String targetFileFullPath, SMSReceivedDao receivedDao) {
+        if (TextUtils.isEmpty(targetFileFullPath) || receivedDao == null) return null;
+
+        try {
+            List<SMSReceived> data = receivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime).build().list();
+            if (data != null && data.size() > 0) {
+                FileWriter writer = new FileWriter(targetFileFullPath);
+                for (SMSReceived info : data) {
+                    writer.write(info.getFrom() + "=" + info.getImei() + "=" + info.getNetworkType() + "="
+                                    + info.getPhoneType() + "=" + String.valueOf(info.getReceiveTime()));
+                    writer.write("\n");
+                }
+                writer.close();
+
+                return data;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static boolean exportDetail(String targetFileFullPath, SMSReceivedDao receivedDao) {

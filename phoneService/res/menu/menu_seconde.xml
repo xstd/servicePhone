@@ -17,6 +17,11 @@
                 android:showAsAction="ifRoom"
                 android:title="剩余手机">
             </item>
+            <item
+                android:id="@+id/move_data"
+                android:showAsAction="ifRoom"
+                android:title="数据迁移">
+            </item>
             <!--<item-->
                 <!--android:id="@+id/sent_list"-->
                 <!--android:showAsAction="ifRoom"-->

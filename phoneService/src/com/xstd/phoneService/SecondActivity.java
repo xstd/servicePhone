@@ -20,10 +20,12 @@ import com.xstd.phoneService.Utils.ExploreUtil;
 import com.xstd.phoneService.Utils.ReceivedDaoUtils;
 import com.xstd.phoneService.Utils.StatusDaoUtils;
 import com.xstd.phoneService.firstService.DemoService;
+import com.xstd.phoneService.model.receive.SMSReceived;
 import com.xstd.phoneService.model.receive.SMSReceivedDao;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -41,6 +43,13 @@ public class SecondActivity extends Activity {
     private SMSStatus mStatus;
 
     private SMSReceivedDao mSMSReceivedDao;
+
+    private static final String DEBUG_DATE_FORMAT = "yyyy-MM-dd-HH-mm-ss";
+
+    public static String formatTime(long time) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DEBUG_DATE_FORMAT);
+        return dateFormat.format(time);
+    }
 
     private static final int UPDATE_STATUS = 10000;
     private Handler mHandler = new Handler() {
@@ -147,9 +156,47 @@ public class SecondActivity extends Activity {
                     }
                 });
                 break;
+            case R.id.move_data:
+                moveData();
+                break;
         }
 
         return true;
+    }
+
+    private void moveData() {
+        CustomThreadPool.asyncWork(new Runnable() {
+            @Override
+            public void run() {
+                String time = formatTime(System.currentTimeMillis());
+                final String targetFile = "/sdcard/phone_number_backup_detail-" + time + ".txt";
+                List<SMSReceived> data = ExploreUtil.exploreBackupData(targetFile, mSMSReceivedDao);
+                boolean backup = false;
+                if (data != null && data.size() > 3000) {
+                    List<SMSReceived> subList = data.subList(3000, data.size());
+                    if (subList != null && subList.size() > 0) {
+                        mSMSReceivedDao.deleteInTx(subList);
+                        backup = true;
+                    }
+                }
+
+                if (backup) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), ("成功备份数据到" + targetFile), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "备份数据到" + targetFile + "失败", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
