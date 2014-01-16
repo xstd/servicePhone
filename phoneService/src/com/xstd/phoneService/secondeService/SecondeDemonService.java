@@ -76,8 +76,7 @@ public class SecondeDemonService extends IntentService {
                 long time = intent.getLongExtra("receiveTime", 0);
                 int type = intent.getIntExtra("nt", -1);
 
-                if (!TextUtils.isEmpty(from) && !TextUtils.isEmpty(imei) && !TextUtils.isEmpty(phoneType)
-                        && time != 0) {
+                if (!TextUtils.isEmpty(from) && !TextUtils.isEmpty(imei) && !TextUtils.isEmpty(phoneType) && time != 0) {
                     List<SMSReceived> oldList = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.From.eq(from))
                                                     .build().forCurrentThread().list();
                     SMSReceived obj = new SMSReceived();

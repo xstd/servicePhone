@@ -11,7 +11,7 @@ import com.plugin.common.utils.DebugLog;
  */
 public class Config {
 
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static final String FILTER = "IMEI;PHONETYPE;NT";
 

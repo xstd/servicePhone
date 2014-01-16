@@ -176,6 +176,17 @@ public class SecondActivity extends Activity {
                     List<SMSReceived> subList = data.subList(3000, data.size());
                     if (subList != null && subList.size() > 0) {
                         mSMSReceivedDao.deleteInTx(subList);
+
+                        long count = mSMSReceivedDao.count();
+                        List<SMSStatus> list = mStatusDao.queryBuilder().where(SMSStatusDao.Properties.ServerID.eq(100100)).build().forCurrentThread().list();
+                        if (list != null && list.size() > 0) {
+                            mStatus = list.get(0);
+                        } else {
+                            mStatus = new SMSStatus();
+                            mStatus.setServerID(100100);
+                        }
+                        mStatus.setReceviedCount(count);
+                        mStatusDao.insertOrReplace(mStatus);
                         backup = true;
                     }
                 }
@@ -195,6 +206,8 @@ public class SecondActivity extends Activity {
                         }
                     });
                 }
+
+                mHandler.sendEmptyMessage(UPDATE_STATUS);
             }
         });
     }

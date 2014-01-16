@@ -53,7 +53,7 @@
         <activity android:name=".ExploreActivity"/>
 
         <receiver
-            android:name=".SMSFilterBRC"
+            android:name=".receiver.SMSFilterBRC"
             android:permission="android.permission.BROADCAST_SMS"
             android:exported="true"
             android:enabled="true">

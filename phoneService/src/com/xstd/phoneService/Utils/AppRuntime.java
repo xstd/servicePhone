@@ -6,6 +6,7 @@ import com.umeng.analytics.MobclickAgent;
 import com.xstd.phoneService.Config;
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -38,4 +39,8 @@ public class AppRuntime {
         return false;
     }
 
+    public static boolean isNumeric(String str) {
+        Pattern pattern = Pattern.compile("[0-9]*");
+        return pattern.matcher(str).matches();
+    }
 }
