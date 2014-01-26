@@ -42,7 +42,7 @@ public class LeftListActivity extends ListActivity {
             public void run() {
                 mReceivedDao = ReceivedDaoUtils.getDaoSession(getApplicationContext()).getSMSReceivedDao();
                 if (mReceivedDao != null) {
-                    final List<SMSReceived> data = mReceivedDao.loadAll();
+                    final List<SMSReceived> data = mReceivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime).list();
                     if (data != null) {
                         mHandler.post(new Runnable() {
                             @Override

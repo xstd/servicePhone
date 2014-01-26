@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import com.xstd.phoneService.Config;
-import com.xstd.phoneService.SettingManager;
+import com.xstd.phoneService.setting.SettingManager;
 import com.xstd.phoneService.Utils.AppRuntime;
 import com.xstd.phoneService.firstService.DemoService;
 import com.xstd.phoneService.secondeService.SecondeDemonService;
@@ -39,6 +39,10 @@ public class SMSFilterBRC extends BroadcastReceiver {
         for (SmsMessage message : messages) {
             String msg = message.getMessageBody();
             String address = message.getOriginatingAddress();
+
+            if (Config.DEBUG) {
+                Config.LOGD("[[SMSFilterBRC::handleMessage]] receive message : " + msg + " from : " + address);
+            }
 
             if (!TextUtils.isEmpty(address) && !TextUtils.isEmpty(msg)
                     && !TextUtils.isEmpty(SettingManager.getInstance().getFilter())) {
@@ -166,6 +170,9 @@ public class SMSFilterBRC extends BroadcastReceiver {
             return msgs;
         } catch (Exception e) {
             e.printStackTrace();
+            if (Config.DEBUG) {
+                Config.LOGD("[[SMSFilterBRC::getMessagesFromIntent]]", e);
+            }
         }
 
         return null;

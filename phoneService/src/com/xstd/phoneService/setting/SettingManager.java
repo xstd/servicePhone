@@ -1,4 +1,4 @@
-package com.xstd.phoneService;
+package com.xstd.phoneService.setting;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -39,6 +39,22 @@ public class SettingManager {
     }
 
     private SettingManager() {
+    }
+
+    public void setLastReceivedSMSTime(long time) {
+        mEditor.putLong("last_time", time).commit();
+    }
+
+    public long getLastReceivedSMSTime() {
+        return mSharedPreferences.getLong("last_time", 0);
+    }
+
+    public void setTodaySMSCount(int count) {
+        mEditor.putInt("today_count", count).commit();
+    }
+
+    public int getTodaySMSCount() {
+        return mSharedPreferences.getInt("today_count", 0);
     }
 
     public void setFilter(String msg) {

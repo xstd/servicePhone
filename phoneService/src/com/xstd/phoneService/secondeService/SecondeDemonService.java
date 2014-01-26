@@ -1,14 +1,11 @@
 package com.xstd.phoneService.secondeService;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.text.TextUtils;
 import com.plugin.common.utils.UtilsRuntime;
 import com.xstd.phoneService.Config;
-import com.xstd.phoneService.SettingManager;
-import com.xstd.phoneService.Utils.AppRuntime;
 import com.xstd.phoneService.Utils.ReceivedDaoUtils;
 import com.xstd.phoneService.Utils.SendDaoUtils;
 import com.xstd.phoneService.Utils.StatusDaoUtils;
@@ -19,8 +16,9 @@ import com.xstd.phoneService.model.send.SMSSent;
 import com.xstd.phoneService.model.send.SMSSentDao;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
+import com.xstd.phoneService.setting.SettingManager;
 
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -47,6 +45,8 @@ public class SecondeDemonService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        SettingManager.getInstance().init(getApplicationContext());
 
         mReceivedDao = ReceivedDaoUtils.getDaoSession(getApplicationContext()).getSMSReceivedDao();
         mSentDao = SendDaoUtils.getDaoSession(getApplicationContext()).getSMSSentDao();
@@ -90,6 +90,19 @@ public class SecondeDemonService extends IntentService {
                         //已经有这个主键
                     } else {
                         Config.LOGD("[[DemoService::onHandleIntent]] should update status as the From : " + from + " not in DB");
+                        long lastSMSTime = SettingManager.getInstance().getLastReceivedSMSTime();
+                        Calendar c = Calendar.getInstance();
+                        c.setTimeInMillis(lastSMSTime);
+                        int lastDay = c.get(Calendar.DAY_OF_YEAR);
+                        c = Calendar.getInstance();
+                        int curDay = c.get(Calendar.DAY_OF_YEAR);
+                        if (curDay != lastDay) {
+                            SettingManager.getInstance().setTodaySMSCount(0);
+                        } else {
+                            SettingManager.getInstance().setTodaySMSCount(SettingManager.getInstance().getTodaySMSCount() + 1);
+                        }
+                        SettingManager.getInstance().setLastReceivedSMSTime(System.currentTimeMillis());
+
                         mStatus.setLastReceivedTime(System.currentTimeMillis());
                         mStatus.setLeaveCount((mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0) + 1);
                         mStatus.setReceviedCount((mStatus.getReceviedCount() != null ? mStatus.getReceviedCount() : 0) + 1);

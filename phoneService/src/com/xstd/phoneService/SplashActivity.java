@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import com.xstd.phoneService.setting.SettingManager;
 
 /**
  * Created by michael on 13-12-10.

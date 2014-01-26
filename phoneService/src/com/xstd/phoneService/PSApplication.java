@@ -3,6 +3,7 @@ package com.xstd.phoneService;
 import android.app.Application;
 import com.plugin.common.utils.UtilsConfig;
 import com.umeng.analytics.MobclickAgent;
+import com.xstd.phoneService.setting.SettingManager;
 
 /**
  * Created with IntelliJ IDEA.

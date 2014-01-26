@@ -6,7 +6,7 @@ import android.os.IBinder;
 import android.text.TextUtils;
 import com.plugin.common.utils.UtilsRuntime;
 import com.xstd.phoneService.Config;
-import com.xstd.phoneService.SettingManager;
+import com.xstd.phoneService.setting.SettingManager;
 import com.xstd.phoneService.Utils.AppRuntime;
 import com.xstd.phoneService.Utils.ReceivedDaoUtils;
 import com.xstd.phoneService.Utils.SendDaoUtils;

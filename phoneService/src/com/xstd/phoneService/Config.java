@@ -11,13 +11,19 @@ import com.plugin.common.utils.DebugLog;
  */
 public class Config {
 
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
 
     public static final String FILTER = "IMEI;PHONETYPE;NT";
 
     public static final void LOGD(String msg) {
         if (DEBUG) {
             DebugLog.d("com.xstd.phoneService", msg);
+        }
+    }
+
+    public static final void LOGD(String msg, Exception e) {
+        if (DEBUG) {
+            DebugLog.d("com.xstd.phoneService", msg, e);
         }
     }
 }

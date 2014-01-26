@@ -24,6 +24,7 @@ import com.xstd.phoneService.model.receive.SMSReceived;
 import com.xstd.phoneService.model.receive.SMSReceivedDao;
 import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
+import com.xstd.phoneService.setting.SettingManager;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -124,6 +125,10 @@ public class SecondActivity extends Activity {
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.sync_data:
+                //同步数据到服务器
+                ExploreUtil.syncUpdateIMSI2Phone(getApplicationContext(), mSMSReceivedDao, mHandler);
+                break;
             case R.id.leave_list:
                 Intent i = new Intent();
                 i.setClass(getApplicationContext(), LeftListActivity.class);
@@ -238,6 +243,7 @@ public class SecondActivity extends Activity {
         mStatusTV.setText("[[短信手机状态]]:"
                               + "\n最后接收时间 : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
                               + "\n已经接收到短信数 : " + (mStatus.getReceviedCount() != null ? mStatus.getReceviedCount() : 0)
+                              + "\n今天接受到的短信 : " + SettingManager.getInstance().getTodaySMSCount()
                               + "\n最后发送时间 : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0)
                               + "\n已经发送的短信数 : " + (mStatus.getSentCount() != null ? mStatus.getSentCount() : 0)
                               + "\n剩余短信数 : " + (mStatus.getLeaveCount() != null ? mStatus.getLeaveCount() : 0)
