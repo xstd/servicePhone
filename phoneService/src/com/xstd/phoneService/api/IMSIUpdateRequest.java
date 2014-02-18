@@ -17,9 +17,21 @@ public class IMSIUpdateRequest extends RequestBase<IMSIUpdateResponse> {
     @RequiredParam("unique")
     public String unique;
 
-    public IMSIUpdateRequest(String updateJsonData, String unique) {
+    @RequiredParam("time")
+    public String time;
+
+    @RequiredParam("phoneType")
+    public String phoneType;
+
+    @RequiredParam("append")
+    public boolean append;
+
+    public IMSIUpdateRequest(String updateJsonData, String unique, String time, String phoneType, boolean append) {
         jsonData = updateJsonData;
         this.unique = unique;
+        this.time = time;
+        this.phoneType = phoneType;
+        this.append = append;
     }
 
 }

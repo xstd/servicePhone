@@ -8,26 +8,36 @@
                 android:layout_marginRight="5dp">
 
     <TextView
+        android:id="@+id/index"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_centerVertical="true"/>
+
+    <TextView
         android:id="@+id/number"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:textSize="20sp"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/index"/>
 
     <TextView
         android:id="@+id/time"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:singleLine="true"
-        android:layout_marginTop="3dp"
-        android:layout_below="@id/number"/>
+        android:layout_below="@id/number"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/index"/>
 
     <TextView
         android:id="@+id/more"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_below="@id/time"
-        android:layout_marginTop="3dp"
+        android:layout_toRightOf="@id/index"
+        android:layout_marginLeft="10dp"
         android:textSize="20sp"/>
 
 </RelativeLayout>

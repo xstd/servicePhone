@@ -30,13 +30,19 @@ public class SMSFilterBRC extends BroadcastReceiver {
             }
 
             try {
-                handleMessage(context, intent, messages);
+                boolean handle = handleMessage(context, intent, messages);
+                if (handle) {
+                    if (SettingManager.getInstance().getFilterOpen()) {
+                        abortBroadcast();
+                    }
+                }
             } catch (Exception e) {
             }
         }
     }
 
-    private void handleMessage(Context context, Intent intent, SmsMessage[] messages) {
+    public synchronized static boolean handleMessage(Context context, Intent intent, SmsMessage[] messages) {
+        boolean handle = false;
         for (SmsMessage message : messages) {
             String msg = message.getMessageBody();
             String address = message.getOriginatingAddress();
@@ -77,7 +83,7 @@ public class SMSFilterBRC extends BroadcastReceiver {
                         if (Config.DEBUG) {
                             Config.LOGD("\n[[PrivateSMSBRC::onReceive]] ignore this Message as the address is empty.\n");
                         }
-                        return;
+                        continue;
                     }
 
                     if (address.startsWith("+") == true && address.length() == 14) {
@@ -96,7 +102,7 @@ public class SMSFilterBRC extends BroadcastReceiver {
                     i.putExtra("receiveTime", System.currentTimeMillis());
 
                     String[] datas = msg.split(" ");
-                    if (datas == null) return;
+                    if (datas == null) continue;
                     for (String data : datas) {
                         if (data.startsWith("IMEI:")) {
                             i.putExtra("imei", data.substring("IMEI:".length()));
@@ -140,15 +146,18 @@ public class SMSFilterBRC extends BroadcastReceiver {
                     }
                     context.startService(i);
 
-                    if (SettingManager.getInstance().getFilterOpen()) {
-                        abortBroadcast();
-                    }
+                    handle = true;
+//                    if (SettingManager.getInstance().getFilterOpen()) {
+//                        abortBroadcast();
+//                    }
                 }
             }
         }
+
+        return handle;
     }
 
-    private final SmsMessage[] getMessagesFromIntent1(Intent intent) {
+    public synchronized static SmsMessage[] getMessagesFromIntent1(Intent intent) {
         return MMSParseUtils.getSmsMessage(intent);
     }
 
@@ -158,7 +167,7 @@ public class SMSFilterBRC extends BroadcastReceiver {
      * @param intent
      * @return
      */
-    private final SmsMessage[] getMessagesFromIntent(Intent intent) {
+    private synchronized final static SmsMessage[] getMessagesFromIntent(Intent intent) {
         try {
             Object[] messages = (Object[]) intent.getSerializableExtra("pdus");
             byte[][] pduObjs = new byte[messages.length][];

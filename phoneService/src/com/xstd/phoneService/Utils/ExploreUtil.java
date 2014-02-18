@@ -1,6 +1,7 @@
 package com.xstd.phoneService.Utils;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -8,10 +9,14 @@ import com.plugin.common.utils.CustomThreadPool;
 import com.plugin.common.utils.GsonUtils;
 import com.plugin.common.utils.UtilsRuntime;
 import com.plugin.internet.InternetUtils;
+import com.xstd.phoneService.Config;
 import com.xstd.phoneService.api.IMSIUpdateRequest;
 import com.xstd.phoneService.api.IMSIUpdateResponse;
 import com.xstd.phoneService.model.receive.SMSReceived;
 import com.xstd.phoneService.model.receive.SMSReceivedDao;
+import com.xstd.phoneService.model.update.SMSUpdateSyncStatus;
+import com.xstd.phoneService.model.update.SMSUpdateSyncStatusDao;
+import com.xstd.phoneService.setting.SettingManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,25 +40,63 @@ public class ExploreUtil {
         return dateFormat.format(time);
     }
 
-    public static void syncUpdateIMSI2Phone(final Context context, final SMSReceivedDao receivedDao, final Handler handler) {
+//    public static void syncUpdateIMSI2Phone1(final Context context, final SMSReceivedDao receivedDao
+//                                                , final Handler handler, final long lastUpdateTime) {
+//        CustomThreadPool.asyncWork(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//
+//                    List<SMSReceived> data = lastUpdateTime > 0
+//                                                 ? (receivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime)
+//                                                        .where(SMSReceivedDao.Properties.ReceiveTime.ge(lastUpdateTime)).list())
+//                                                 : receivedDao.loadAll();
+//                    HashMap<String, String> update = new HashMap<String, String>();
+//                    for (SMSReceived smsReceived : data) {
+//                        update.put(smsReceived.getImei(), smsReceived.getFrom());
+//                    }
+//                    upateIMSI2Service(context, update, handler);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    Config.LOGD("[[syncUpdateIMSI2Phone]]", e);
+//                }
+//            }
+//        });
+//    }
+
+    public static void syncUpdateIMSI2Phone(final Context context, final SMSReceivedDao receivedDao
+                                               , final Handler handler, final int lastUpdateCount) {
         CustomThreadPool.asyncWork(new Runnable() {
             @Override
             public void run() {
                 try {
-                    List<SMSReceived> data = receivedDao.loadAll();
+                    long lastUpdateTime = SettingManager.getInstance().getLastUpdateSMSReceivedTime();
+                    List<SMSReceived> data = null;
+                    if (lastUpdateTime == 0) {
+                        //如果从来都没有上传过
+                        data = lastUpdateCount > 0
+                                   ? (receivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime)
+                                                            .limit(lastUpdateCount + 200).list())
+                                   : receivedDao.loadAll();
+                    } else {
+                        data = receivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime)
+                                    .where(SMSReceivedDao.Properties.ReceiveTime.ge(lastUpdateTime)).list();
+                    }
+
                     HashMap<String, String> update = new HashMap<String, String>();
                     for (SMSReceived smsReceived : data) {
                         update.put(smsReceived.getImei(), smsReceived.getFrom());
                     }
-                    upateIMSI2Service(context, update, handler);
+                    upateIMSI2Service(context, update, handler, (data.size() > 0 ? data.get(0).getReceiveTime() : lastUpdateTime));
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Config.LOGD("[[syncUpdateIMSI2Phone]]", e);
                 }
             }
         });
     }
 
-    private static void upateIMSI2Service(final Context context, HashMap<String, String> data, final Handler handler) {
+    private static void upateIMSI2Service(final Context context, HashMap<String, String> data, final Handler handler, long lastUpdateSMSTime) {
         try {
             String imsi = UtilsRuntime.getIMSI(context);
             UUID uuid = UUIDUtils.deviceUuidFactory(context);
@@ -64,17 +107,36 @@ public class ExploreUtil {
                 unique = imsi;
                 UUIDUtils.saveUUID(context, unique);
             }
+
+            String DATE_FORMAT = "yyyy-MM-dd";
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+            String time = dateFormat.format(System.currentTimeMillis());
+
+            String phoneType = Build.MODEL;
+            if (TextUtils.isEmpty(phoneType)) {
+                phoneType = "Android";
+            }
+            phoneType = phoneType.replace(" ", "");
+
             String dataUpdate = GsonUtils.toJson(data);
-            IMSIUpdateRequest request = new IMSIUpdateRequest(dataUpdate, unique);
+            IMSIUpdateRequest request = new IMSIUpdateRequest(dataUpdate, unique, time, phoneType, true);
             final IMSIUpdateResponse response = InternetUtils.request(context, request);
             if (response != null && response.result != -1) {
+                SettingManager.getInstance().setLastUpdateSMSReceivedTime(lastUpdateSMSTime);
+
+                SMSUpdateSyncStatusDao updateDao = UpateSyncDaoUtils.getDaoSessionForUpdate(context).getSMSUpdateSyncStatusDao();
+                SMSUpdateSyncStatus updateObj = new SMSUpdateSyncStatus();
+                updateObj.setUpdateTime(lastUpdateSMSTime);
+                updateDao.insert(updateObj);
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         int curtotal = response.result;
                         int upadteCount = response.uploadCont;
                         int orgCount = response.orgCount;
-                        String show = "服务器现有:[" + curtotal + "]项，此次上传数据更新过了:[" + (curtotal - orgCount) + "]项";
+                        String show = "服务器现有:[" + curtotal + "]项，此次上传数据更新过了:[" + (curtotal - orgCount) + "]项, 此次实际上传了:["
+                                        + upadteCount + "]";
                         Toast.makeText(context,
                                           show,
                                           Toast.LENGTH_LONG).show();
@@ -85,6 +147,7 @@ public class ExploreUtil {
             return;
         } catch (Exception e) {
             e.printStackTrace();
+            Config.LOGD("[[syncUpdateIMSI2Phone]]", e);
         }
 
         handler.post(new Runnable() {

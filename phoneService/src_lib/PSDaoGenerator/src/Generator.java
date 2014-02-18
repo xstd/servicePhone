@@ -14,20 +14,25 @@ public class Generator {
     private static final String PACKAGE_NAME_RECEIVE = "com.xstd.phoneService.model.receive";
     private static final String PACKAGE_NAME_SEND = "com.xstd.phoneService.model.send";
     private static final String PACKAGE_NAME_STATUS = "com.xstd.phoneService.model.status";
-    private static final int VERSION = 1;
+    private static final String PACKAGE_UPDATE_STATUS = "com.xstd.phoneService.model.update";
+
+    private static final int VERSION = 2;
 
     public static void main(String[] args) throws Exception {
         Schema receiveSchema = new Schema(VERSION, PACKAGE_NAME_RECEIVE);
         Schema sendSchema = new Schema(VERSION, PACKAGE_NAME_SEND);
         Schema statusSchema = new Schema(VERSION, PACKAGE_NAME_STATUS);
+        Schema updateStatusSchema = new Schema(VERSION, PACKAGE_UPDATE_STATUS);
 
         generateSMSSentLog(sendSchema);
         generateSMSReceivedLog(receiveSchema);
         generateSMSStatusLog(statusSchema);
+        generateSMSUpdateStatusLog(updateStatusSchema);
 
         new DaoGenerator().generateAll(sendSchema, "../../src");
         new DaoGenerator().generateAll(receiveSchema, "../../src");
         new DaoGenerator().generateAll(statusSchema, "../../src");
+        new DaoGenerator().generateAll(updateStatusSchema, "../../src");
     }
 
     private static void generateSMSStatusLog(Schema schema) {
@@ -72,5 +77,14 @@ public class Generator {
         note.addStringProperty("phoneType").notNull();
         note.addStringProperty("networkType");
         note.addLongProperty("receiveTime").notNull();
+    }
+
+    private static void generateSMSUpdateStatusLog(Schema schema) {
+        Entity note = schema.addEntity("SMSUpdateSyncStatus");
+
+        note.addIdProperty().autoincrement();
+        note.addLongProperty("updateTime").notNull();
+        note.addLongProperty("extra1");
+        note.addLongProperty("extra2");
     }
 }

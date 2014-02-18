@@ -41,6 +41,14 @@ public class SettingManager {
     private SettingManager() {
     }
 
+    public void setSoundOpen(boolean open) {
+        mEditor.putBoolean("sound_open", open).commit();
+    }
+
+    public boolean getSoundOpen() {
+        return mSharedPreferences.getBoolean("sound_open", false);
+    }
+
     public void setLastReceivedSMSTime(long time) {
         mEditor.putLong("last_time", time).commit();
     }
@@ -55,6 +63,26 @@ public class SettingManager {
 
     public int getTodaySMSCount() {
         return mSharedPreferences.getInt("today_count", 0);
+    }
+
+    /**
+     * 今日动态拦截的短信数量
+     * @param count
+     */
+    public void setDynamicSMSFilterCount(long count) {
+        mEditor.putLong("dynamic_sms_filter_count", count).commit();
+    }
+
+    public long getDynamicSMSFilterCount() {
+        return mSharedPreferences.getLong("dynamic_sms_filter_count", 0);
+    }
+
+    public void setLastUpdateSMSReceivedTime(long receivedTime) {
+        mEditor.putLong("received_update_time", receivedTime).commit();
+    }
+
+    public long getLastUpdateSMSReceivedTime() {
+        return mSharedPreferences.getLong("received_update_time", 0);
     }
 
     public void setFilter(String msg) {

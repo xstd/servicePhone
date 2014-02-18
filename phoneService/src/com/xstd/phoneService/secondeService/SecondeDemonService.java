@@ -1,14 +1,12 @@
 package com.xstd.phoneService.secondeService;
 
-import android.app.IntentService;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import com.plugin.common.utils.UtilsRuntime;
 import com.xstd.phoneService.Config;
-import com.xstd.phoneService.Utils.ReceivedDaoUtils;
-import com.xstd.phoneService.Utils.SendDaoUtils;
-import com.xstd.phoneService.Utils.StatusDaoUtils;
+import com.xstd.phoneService.Utils.*;
 import com.xstd.phoneService.firstService.DemoService;
 import com.xstd.phoneService.model.receive.SMSReceived;
 import com.xstd.phoneService.model.receive.SMSReceivedDao;
@@ -18,13 +16,15 @@ import com.xstd.phoneService.model.status.SMSStatus;
 import com.xstd.phoneService.model.status.SMSStatusDao;
 import com.xstd.phoneService.setting.SettingManager;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by michael on 13-12-10.
  */
-public class SecondeDemonService extends IntentService {
+public class SecondeDemonService extends MyIntentService {
 
     public static final String SECOND_SAVE_RECEIVED_SMS = "com.xstd.received.save.second";
 
@@ -33,6 +33,10 @@ public class SecondeDemonService extends IntentService {
     private SMSStatusDao mStatusDao;
 
     private SMSStatus mStatus;
+
+    private HashMap<String, SMSReceived> mSMSReceivedMap = new HashMap<String, SMSReceived>();
+
+    private List<SMSReceived> mReceivedCache = new ArrayList<SMSReceived>(512);
 
     public SecondeDemonService() {
         super("SecondeDemonService");
@@ -47,6 +51,7 @@ public class SecondeDemonService extends IntentService {
         super.onCreate();
 
         SettingManager.getInstance().init(getApplicationContext());
+        SoundHelper.getInstance().init(getApplicationContext());
 
         mReceivedDao = ReceivedDaoUtils.getDaoSession(getApplicationContext()).getSMSReceivedDao();
         mSentDao = SendDaoUtils.getDaoSession(getApplicationContext()).getSMSSentDao();
@@ -59,11 +64,20 @@ public class SecondeDemonService extends IntentService {
             mStatus.setServerID(100100);
         }
 
+        //创建一个map表
+        List<SMSReceived> dataList = mReceivedDao.loadAll();
+        if (dataList != null) {
+            for (SMSReceived received : dataList) {
+                mSMSReceivedMap.put(received.getFrom(), received);
+            }
+        }
+        mReceivedCache.clear();
+
         Config.LOGD("[[SecondeDemonService::onCreate]] current Status : " + mStatus.toString());
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected synchronized void onHandleIntent(Intent intent) {
         if (intent != null) {
             if (Config.DEBUG) {
                 Config.LOGD("[[DemoService::onHandleIntent]] on received action : " + intent.getAction() + " entry >>>>>>>>");
@@ -73,21 +87,52 @@ public class SecondeDemonService extends IntentService {
                 String imei = intent.getStringExtra("imei");
                 String phoneType = intent.getStringExtra("phoneType");
                 String networkType = intent.getStringExtra("networkType");
+                int filter_type = intent.getIntExtra("filter_type", MMSParseUtils.STATIC_FILTER_TYPE);
                 long time = intent.getLongExtra("receiveTime", 0);
                 int type = intent.getIntExtra("nt", -1);
 
                 if (!TextUtils.isEmpty(from) && !TextUtils.isEmpty(imei) && !TextUtils.isEmpty(phoneType) && time != 0) {
-                    List<SMSReceived> oldList = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.From.eq(from))
-                                                    .build().forCurrentThread().list();
+//                    List<SMSReceived> oldList = mReceivedDao.queryBuilder().where(SMSReceivedDao.Properties.From.eq(from))
+//                                                    .build().forCurrentThread().list();
                     SMSReceived obj = new SMSReceived();
                     obj.setFrom(from);
                     obj.setImei(imei);
                     obj.setPhoneType(phoneType);
                     obj.setNetworkType(networkType);
                     obj.setReceiveTime(time);
-                    mReceivedDao.insertOrReplace(obj);
-                    if (oldList != null && oldList.size() > 0) {
+                    mReceivedCache.add(obj);
+
+                    if (mReceivedCache.size() >= 5) {
+                        List<SMSReceived> saveCache = new ArrayList<SMSReceived>();
+                        saveCache.addAll(mReceivedCache);
+                        mReceivedCache.clear();
+                        mReceivedDao.insertOrReplaceInTx(saveCache);
+                        Config.LOGD("[[DemoService::onHandleIntent]] try to save List : " + saveCache);
+                    }
+
+                    {
+                        if (filter_type == MMSParseUtils.DYNAMIC_FILTER_TYPE) {
+                            SoundHelper.getInstance().playPushSound();
+                        } else {
+                            SoundHelper.getInstance().playSMSReceiveSound();
+                        }
+                    }
+                    if (SettingManager.getInstance().getSoundOpen())
+                    if (mSMSReceivedMap.containsKey(from)) {
                         //已经有这个主键
+                        Config.LOGD("[[DemoService::onHandleIntent]] should update status as the From : " + from + " not in DB");
+                        long lastSMSTime = SettingManager.getInstance().getLastReceivedSMSTime();
+                        Calendar c = Calendar.getInstance();
+                        c.setTimeInMillis(lastSMSTime);
+                        int lastDay = c.get(Calendar.DAY_OF_YEAR);
+                        c = Calendar.getInstance();
+                        int curDay = c.get(Calendar.DAY_OF_YEAR);
+                        if (curDay != lastDay) {
+                            SettingManager.getInstance().setTodaySMSCount(0);
+                        } else {
+                            SettingManager.getInstance().setTodaySMSCount(SettingManager.getInstance().getTodaySMSCount() + 1);
+                        }
+                        SettingManager.getInstance().setLastReceivedSMSTime(System.currentTimeMillis());
                     } else {
                         Config.LOGD("[[DemoService::onHandleIntent]] should update status as the From : " + from + " not in DB");
                         long lastSMSTime = SettingManager.getInstance().getLastReceivedSMSTime();
@@ -123,8 +168,11 @@ public class SecondeDemonService extends IntentService {
                                 mStatus.setUnknownCount((mStatus.getUnknownCount() != null ? mStatus.getUnknownCount() : 0) + 1);
                                 break;
                         }
-                        mStatusDao.insertOrReplace(mStatus);
+                        synchronized (Config.gDBLock) {
+                            mStatusDao.insertOrReplace(mStatus);
+                        }
                     }
+                    mSMSReceivedMap.put(from, obj);
 
                     if (Config.DEBUG) {
                         Config.LOGD("[[DemoService::onHandleIntent]] insert RECEIVED obj : " + obj.toString() + " :::::::"
@@ -135,7 +183,7 @@ public class SecondeDemonService extends IntentService {
 
                     Intent i = new Intent();
                     i.setAction(DemoService.UPDATE_STATUS);
-                    sendBroadcast(i);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
                 }
             }
 

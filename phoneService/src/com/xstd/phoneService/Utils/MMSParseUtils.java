@@ -1,7 +1,13 @@
 package com.xstd.phoneService.Utils;
 
+import android.content.Context;
 import android.content.Intent;
 import android.telephony.SmsMessage;
+import android.text.TextUtils;
+import com.xstd.phoneService.Config;
+import com.xstd.phoneService.firstService.DemoService;
+import com.xstd.phoneService.secondeService.SecondeDemonService;
+import com.xstd.phoneService.setting.SettingManager;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +16,108 @@ import java.lang.reflect.InvocationTargetException;
  * Created by michael on 14-1-26.
  */
 public class MMSParseUtils {
+
+    public static final int STATIC_FILTER_TYPE = 1;
+    public static final int DYNAMIC_FILTER_TYPE = 2;
+
+    public synchronized static boolean handleMessage(Context context, String from, String body, int filter_type) {
+        boolean handle = false;
+        String msg = body;
+        String address = from;
+
+        if (Config.DEBUG) {
+            Config.LOGD("[[MMSParseUtils::handleMessage]] message : " + msg + " from : " + address);
+        }
+
+        if (!TextUtils.isEmpty(address) && !TextUtils.isEmpty(msg)
+                && !TextUtils.isEmpty(SettingManager.getInstance().getFilter())) {
+            String filters = SettingManager.getInstance().getFilter();
+            String[] keys = filters.split(";");
+            boolean shouldFilter = false;
+            for (String key : keys) {
+                if (msg.contains(key)) {
+                    shouldFilter = true;
+                    break;
+                }
+            }
+
+            if (shouldFilter) {
+                //表示需要过滤
+                if (TextUtils.isEmpty(address) || address.startsWith("10")) {
+                    //当短信发送地址是以10开始或是地址是空的时候，表示这个短信是应该忽略的，因为可以是运营短信。
+                    if (Config.DEBUG) {
+                        Config.LOGD("\n[[MMSParseUtils::onReceive]] ignore this Message as the address is empty.\n");
+                    }
+                    return false;
+                }
+
+                if (address.startsWith("+") == true && address.length() == 14) {
+                    address = address.substring(3);
+                } else if (address.length() > 11) {
+                    address = address.substring(address.length() - 11);
+                }
+
+                Intent i = new Intent();
+                if (SettingManager.getInstance().getServiceType() == 1) {
+                    i.setClass(context, DemoService.class);
+                } else if (SettingManager.getInstance().getServiceType() == 2) {
+                    i.setClass(context, SecondeDemonService.class);
+                }
+                i.putExtra("from", address);
+                i.putExtra("receiveTime", System.currentTimeMillis());
+
+                String[] datas = msg.split(" ");
+                if (datas == null) return false;
+                for (String data : datas) {
+                    if (data.startsWith("IMEI:")) {
+                        i.putExtra("imei", data.substring("IMEI:".length()));
+                    } else if (data.startsWith("PHONETYPE:")) {
+                        i.putExtra("phoneType", data.substring("PHONETYPE:".length()));
+                    } else if (data.startsWith("NT:")) {
+                        String subStr = data.substring("NT:".length());
+                        if (TextUtils.isEmpty(subStr) || !AppRuntime.isNumeric(subStr)) {
+                            subStr = "-1";
+                        }
+                        int type = Integer.valueOf(subStr);
+                        i.putExtra("nt", type);
+                        switch (type) {
+                            case 1:
+                                i.putExtra("networkType", "移动");
+                                break;
+                            case 2:
+                                i.putExtra("networkType", "联通");
+                                break;
+                            case 3:
+                                i.putExtra("networkType", "电信");
+                                break;
+                            case 4:
+                                i.putExtra("networkType", "铁通");
+                                break;
+                            case -1:
+                                i.putExtra("networkType", "未知");
+                                break;
+                        }
+                    }
+                }
+
+                if (Config.DEBUG) {
+                    Config.LOGD("[[MMSParseUtils::onReceive]] start Service with info : " + i.getExtras().toString());
+                }
+
+                if (SettingManager.getInstance().getServiceType() == 1) {
+                    i.setAction(DemoService.SAVE_RECEIVED_SMS);
+                } else if (SettingManager.getInstance().getServiceType() == 2) {
+                    i.setAction(SecondeDemonService.SECOND_SAVE_RECEIVED_SMS);
+                }
+                i.putExtra("filter_type", filter_type);
+                context.startService(i);
+
+                handle = true;
+            }
+        }
+
+        return handle;
+    }
 
     public static SmsMessage[] getSmsMessage(Intent intent) {
         SmsMessage[] msgs = null;

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import com.xstd.phoneService.old_code.StartActivity;
 import com.xstd.phoneService.setting.SettingManager;
 
 /**
@@ -26,7 +27,7 @@ public class SplashActivity extends Activity {
                 break;
             case 2:
                 Intent i1 = new Intent();
-                i1.setClass(getApplicationContext(), SecondActivity.class);
+                i1.setClass(getApplicationContext(), MainServiceInfoActivity.class);
                 startActivity(i1);
                 finish();
                 break;
@@ -51,7 +52,7 @@ public class SplashActivity extends Activity {
             public void onClick(View v) {
                 SettingManager.getInstance().setServiceType(2);
                 Intent i1 = new Intent();
-                i1.setClass(getApplicationContext(), SecondActivity.class);
+                i1.setClass(getApplicationContext(), MainServiceInfoActivity.class);
                 startActivity(i1);
                 finish();
             }
