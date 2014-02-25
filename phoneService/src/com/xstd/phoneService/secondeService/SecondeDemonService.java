@@ -110,14 +110,14 @@ public class SecondeDemonService extends MyIntentService {
                         Config.LOGD("[[DemoService::onHandleIntent]] try to save List : " + saveCache);
                     }
 
-                    {
+                    if (SettingManager.getInstance().getSoundOpen()) {
                         if (filter_type == MMSParseUtils.DYNAMIC_FILTER_TYPE) {
                             SoundHelper.getInstance().playPushSound();
                         } else {
                             SoundHelper.getInstance().playSMSReceiveSound();
                         }
                     }
-                    if (SettingManager.getInstance().getSoundOpen())
+
                     if (mSMSReceivedMap.containsKey(from)) {
                         //已经有这个主键
                         Config.LOGD("[[DemoService::onHandleIntent]] should update status as the From : " + from + " not in DB");
