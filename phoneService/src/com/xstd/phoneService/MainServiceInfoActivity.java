@@ -43,6 +43,8 @@ public class MainServiceInfoActivity extends Activity {
 
     private Switch mSwitcher;
 
+    private Switch mAutoSwitcher;
+
     private SMSStatusDao mStatusDao;
     private SMSStatus mStatus;
 
@@ -89,6 +91,16 @@ public class MainServiceInfoActivity extends Activity {
         mFilterET = (EditText) findViewById(R.id.filter);
         mStatusTV = (TextView) findViewById(R.id.status);
         mSwitcher = (Switch) findViewById(R.id.abort_switch);
+
+        mAutoSwitcher = (Switch) findViewById(R.id.auto_sync);
+
+        mAutoSwitcher.setChecked(SettingManager.getInstance().getAutoSync());
+        mAutoSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SettingManager.getInstance().setAutoSync(isChecked);
+            }
+        });
 
         mSwitcher.setChecked(SettingManager.getInstance().getFilterOpen());
         mSwitcher.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -163,6 +175,11 @@ public class MainServiceInfoActivity extends Activity {
                 Intent i1 = new Intent();
                 i1.setClass(getApplicationContext(), SentListActivity.class);
                 startActivity(i1);
+                break;
+            case R.id.repeat_list:
+                Intent repeatI = new Intent();
+                repeatI.setClass(getApplicationContext(), RepeatLogActivity.class);
+                startActivity(repeatI);
                 break;
             case R.id.explore:
                 CustomThreadPool.asyncWork(new Runnable() {

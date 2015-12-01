@@ -15,6 +15,7 @@ public class Generator {
     private static final String PACKAGE_NAME_SEND = "com.xstd.phoneService.model.send";
     private static final String PACKAGE_NAME_STATUS = "com.xstd.phoneService.model.status";
     private static final String PACKAGE_UPDATE_STATUS = "com.xstd.phoneService.model.update";
+    private static final String PACKAGE_REPEAT_LOG = "com.xstd.phoneService.model.repeat";
 
     private static final int VERSION = 2;
 
@@ -23,16 +24,30 @@ public class Generator {
         Schema sendSchema = new Schema(VERSION, PACKAGE_NAME_SEND);
         Schema statusSchema = new Schema(VERSION, PACKAGE_NAME_STATUS);
         Schema updateStatusSchema = new Schema(VERSION, PACKAGE_UPDATE_STATUS);
+        Schema repeatStausSchema = new Schema(VERSION, PACKAGE_REPEAT_LOG);
 
         generateSMSSentLog(sendSchema);
         generateSMSReceivedLog(receiveSchema);
         generateSMSStatusLog(statusSchema);
         generateSMSUpdateStatusLog(updateStatusSchema);
+        generateSMSRepeatStatusLog(repeatStausSchema);
 
         new DaoGenerator().generateAll(sendSchema, "../../src");
         new DaoGenerator().generateAll(receiveSchema, "../../src");
         new DaoGenerator().generateAll(statusSchema, "../../src");
         new DaoGenerator().generateAll(updateStatusSchema, "../../src");
+        new DaoGenerator().generateAll(repeatStausSchema, "../../src");
+    }
+
+    private static void generateSMSRepeatStatusLog(Schema schema) {
+        Entity note = schema.addEntity("SMSRepeat");
+
+        note.addStringProperty("from").notNull().primaryKey();
+        note.addStringProperty("phoneType").notNull();
+        note.addStringProperty("imsi").notNull();
+        note.addStringProperty("networkType").notNull();
+        note.addLongProperty("receiveTime").notNull();
+        note.addLongProperty("repeatCount");
     }
 
     private static void generateSMSStatusLog(Schema schema) {

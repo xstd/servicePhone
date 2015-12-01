@@ -117,6 +117,22 @@ public class SettingManager {
         return mSharedPreferences.getBoolean("open", false);
     }
 
+    public void setAutoSync(boolean autoSync) {
+        mEditor.putBoolean("auto_sync", autoSync).commit();
+    }
+
+    public boolean getAutoSync() {
+        return mSharedPreferences.getBoolean("auto_sync", false);
+    }
+
+    public void setLastSyncTime(long time) {
+        mEditor.putLong("last_sync_time", time).commit();
+    }
+
+    public long getLastSyncTime() {
+        return mSharedPreferences.getLong("last_sync_time", 0);
+    }
+
     public void setServiceType(int type) {
         mEditor.putInt("serviceType", type).commit();
     }

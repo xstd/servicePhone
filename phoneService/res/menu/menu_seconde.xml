@@ -14,6 +14,11 @@
                 android:title="手机号码列表">
             </item>
             <item
+                android:id="@+id/repeat_list"
+                android:showAsAction="ifRoom"
+                android:title="重复手机号码列表">
+            </item>
+            <item
                 android:id="@+id/explore"
                 android:title="导出数据库">
             </item>

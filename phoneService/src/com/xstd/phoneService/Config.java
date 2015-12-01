@@ -15,6 +15,8 @@ public class Config {
 
     public static final Object gDBLock = new Object();
 
+    public static final long ONE_DAY = 1 * 60 * 1000;// ((long) 24) * 60 * 60 * 1000;
+
     public static final String FILTER = "IMEI;PHONETYPE;NT";
 
     public static final void LOGD(String msg) {

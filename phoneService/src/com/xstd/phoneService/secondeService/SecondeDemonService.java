@@ -10,6 +10,8 @@ import com.xstd.phoneService.Utils.*;
 import com.xstd.phoneService.firstService.DemoService;
 import com.xstd.phoneService.model.receive.SMSReceived;
 import com.xstd.phoneService.model.receive.SMSReceivedDao;
+import com.xstd.phoneService.model.repeat.SMSRepeat;
+import com.xstd.phoneService.model.repeat.SMSRepeatDao;
 import com.xstd.phoneService.model.send.SMSSent;
 import com.xstd.phoneService.model.send.SMSSentDao;
 import com.xstd.phoneService.model.status.SMSStatus;
@@ -31,12 +33,16 @@ public class SecondeDemonService extends MyIntentService {
     private SMSReceivedDao mReceivedDao;
     private SMSSentDao mSentDao;
     private SMSStatusDao mStatusDao;
+    private SMSRepeatDao mRepeatDao;
 
     private SMSStatus mStatus;
 
     private HashMap<String, SMSReceived> mSMSReceivedMap = new HashMap<String, SMSReceived>();
+    private HashMap<String, SMSRepeat> mSMSRepeatdMap = new HashMap<String, SMSRepeat>();
 
     private List<SMSReceived> mReceivedCache = new ArrayList<SMSReceived>(512);
+
+    private int mReceiveCountForAutoSync;
 
     public SecondeDemonService() {
         super("SecondeDemonService");
@@ -56,6 +62,7 @@ public class SecondeDemonService extends MyIntentService {
         mReceivedDao = ReceivedDaoUtils.getDaoSession(getApplicationContext()).getSMSReceivedDao();
         mSentDao = SendDaoUtils.getDaoSession(getApplicationContext()).getSMSSentDao();
         mStatusDao = StatusDaoUtils.getDaoSession(getApplicationContext()).getSMSStatusDao();
+        mRepeatDao = RepeatSMSStatusUtils.getDaoSessionForRepeat(getApplicationContext()).getSMSRepeatDao();
         List<SMSStatus> list = mStatusDao.queryBuilder().where(SMSStatusDao.Properties.ServerID.eq(100100)).build().forCurrentThread().list();
         if (list != null && list.size() > 0) {
             mStatus = list.get(0);
@@ -69,6 +76,14 @@ public class SecondeDemonService extends MyIntentService {
         if (dataList != null) {
             for (SMSReceived received : dataList) {
                 mSMSReceivedMap.put(received.getFrom(), received);
+            }
+        }
+
+        //创建一个重复list
+        List<SMSRepeat> repeatList = mRepeatDao.loadAll();
+        if (repeatList != null) {
+            for (SMSRepeat repeat : repeatList) {
+                mSMSRepeatdMap.put(repeat.getFrom(), repeat);
             }
         }
         mReceivedCache.clear();
@@ -174,11 +189,44 @@ public class SecondeDemonService extends MyIntentService {
                     }
                     mSMSReceivedMap.put(from, obj);
 
+                    if (mSMSRepeatdMap.containsKey(from)) {
+                        SMSRepeat repeat = mSMSRepeatdMap.get(from);
+                        repeat.setReceiveTime(time);
+                        repeat.setImsi(imei);
+                        repeat.setPhoneType(phoneType);
+                        repeat.setNetworkType(networkType);
+                        repeat.setRepeatCount(repeat.getRepeatCount() + 1);
+
+                        if (repeat.getRepeatCount() > 3) {
+                            mRepeatDao.insertOrReplace(repeat);
+                        }
+                    } else {
+                        SMSRepeat repeat = new SMSRepeat();
+                        repeat.setFrom(from);
+                        repeat.setImsi(imei);
+                        repeat.setPhoneType(phoneType);
+                        repeat.setNetworkType(networkType);
+                        repeat.setReceiveTime(time);
+                        repeat.setRepeatCount(Long.valueOf(0));
+                        mSMSRepeatdMap.put(from, repeat);
+                    }
+
                     if (Config.DEBUG) {
                         Config.LOGD("[[DemoService::onHandleIntent]] insert RECEIVED obj : " + obj.toString() + " :::::::"
                                         + "\n\ncurrent status : " + mStatus.toString()
                                         + "\nlast received time : " + UtilsRuntime.debugFormatTime(mStatus.getLastReceivedTime() != null ? mStatus.getLastReceivedTime() : 0)
                                         + "\nlast sent time : " + UtilsRuntime.debugFormatTime(mStatus.getLastSentTime() != null ? mStatus.getLastSentTime() : 0));
+                    }
+
+
+                    if (SettingManager.getInstance().getAutoSync()) {
+                        long lastSyncTime = SettingManager.getInstance().getLastSyncTime();
+                        long curTime = System.currentTimeMillis();
+
+                        if ((curTime - lastSyncTime) >= Config.ONE_DAY) {
+                            //如果自动同步打开，就每一个小时同步
+                            ExploreUtil.syncUpdateIMSI2Phone(getApplicationContext(), mReceivedDao, null, SettingManager.getInstance().getTodaySMSCount());
+                        }
                     }
 
                     Intent i = new Intent();

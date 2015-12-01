@@ -76,11 +76,11 @@ public class ExploreUtil {
                         //如果从来都没有上传过
                         data = lastUpdateCount > 0
                                    ? (receivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime)
-                                                            .limit(lastUpdateCount + 200).list())
+                                          .limit(lastUpdateCount + 200).list())
                                    : receivedDao.loadAll();
                     } else {
                         data = receivedDao.queryBuilder().orderDesc(SMSReceivedDao.Properties.ReceiveTime)
-                                    .where(SMSReceivedDao.Properties.ReceiveTime.ge(lastUpdateTime)).list();
+                                   .where(SMSReceivedDao.Properties.ReceiveTime.ge(lastUpdateTime)).list();
                     }
 
                     HashMap<String, String> update = new HashMap<String, String>();
@@ -123,39 +123,44 @@ public class ExploreUtil {
             final IMSIUpdateResponse response = InternetUtils.request(context, request);
             if (response != null && response.result != -1) {
                 SettingManager.getInstance().setLastUpdateSMSReceivedTime(lastUpdateSMSTime);
+                SettingManager.getInstance().setLastSyncTime(System.currentTimeMillis());
 
                 SMSUpdateSyncStatusDao updateDao = UpateSyncDaoUtils.getDaoSessionForUpdate(context).getSMSUpdateSyncStatusDao();
                 SMSUpdateSyncStatus updateObj = new SMSUpdateSyncStatus();
                 updateObj.setUpdateTime(lastUpdateSMSTime);
                 updateDao.insert(updateObj);
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        int curtotal = response.result;
-                        int upadteCount = response.uploadCont;
-                        int orgCount = response.orgCount;
-                        String show = "服务器现有:[" + curtotal + "]项，此次上传数据更新过了:[" + (curtotal - orgCount) + "]项, 此次实际上传了:["
-                                        + upadteCount + "]";
-                        Toast.makeText(context,
-                                          show,
-                                          Toast.LENGTH_LONG).show();
-                    }
-                });
+                if (handler != null) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            int curtotal = response.result;
+                            int upadteCount = response.uploadCont;
+                            int orgCount = response.orgCount;
+                            String show = "服务器现有:[" + curtotal + "]项，此次上传数据更新过了:[" + (curtotal - orgCount) + "]项, 此次实际上传了:["
+                                              + upadteCount + "]";
+                            Toast.makeText(context,
+                                              show,
+                                              Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                return;
             }
 
-            return;
         } catch (Exception e) {
             e.printStackTrace();
             Config.LOGD("[[syncUpdateIMSI2Phone]]", e);
         }
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(context, "上传失败，请重新上传", Toast.LENGTH_LONG).show();
-            }
-        });
+        if (handler != null) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, "上传失败，请重新上传", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     public static boolean explore(String targetFileFullPath, SMSReceivedDao receivedDao) {

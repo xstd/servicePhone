@@ -66,6 +66,29 @@
             />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="自动同步"
+            android:layout_marginRight="5dp"/>
+
+        <Switch
+            android:id="@+id/auto_sync"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="关闭"
+            android:textOn="打开"
+            />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/status"
         android:layout_width="match_parent"
